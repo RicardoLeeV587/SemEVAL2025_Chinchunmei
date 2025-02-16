@@ -1,0 +1,90 @@
+\begin{thebibliography}{17}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Al~Maruf et~al.(2024)Al~Maruf, Khanam, Haque, Jiyad, Mridha, and Aung}]{al2024challenges}
+Abdullah Al~Maruf, Fahima Khanam, Md~Mahmudul Haque, Zakaria~Masud Jiyad, Firoj Mridha, and Zeyar Aung. 2024.
+\newblock Challenges and opportunities of text-based emotion detection: A survey.
+\newblock \emph{IEEE Access}.
+
+\bibitem[{Ando and Zhang(2005)}]{Ando2005}
+Rie~Kubota Ando and Tong Zhang. 2005.
+\newblock A framework for learning predictive structures from multiple tasks and unlabeled data.
+\newblock \emph{Journal of Machine Learning Research}, 6:1817--1853.
+
+\bibitem[{Andrew and Gao(2007)}]{andrew2007scalable}
+Galen Andrew and Jianfeng Gao. 2007.
+\newblock Scalable training of {L1}-regularized log-linear models.
+\newblock In \emph{Proceedings of the 24th International Conference on Machine Learning}, pages 33--40.
+
+\bibitem[{Cassab and Kurdy(2020)}]{cassab2020ontology}
+S~Cassab and Mohamad-Bassam Kurdy. 2020.
+\newblock Ontology-based emotion detection in arabic social media.
+\newblock \emph{International Journal of Engineering Research \& Technology (IJERT)}, 9(08):1991--2013.
+
+\bibitem[{Ekman and Friesen(1969)}]{ekman1969repertoire}
+Paul Ekman and Wallace~V Friesen. 1969.
+\newblock The repertoire of nonverbal behavior: Categories, origins, usage, and coding.
+\newblock \emph{semiotica}, 1(1):49--98.
+
+\bibitem[{Gusfield(1997)}]{Gusfield:97}
+Dan Gusfield. 1997.
+\newblock \emph{Algorithms on Strings, Trees and Sequences}.
+\newblock Cambridge University Press, Cambridge, UK.
+
+\bibitem[{Hu et~al.(2021)Hu, Wei, and Huai}]{hu2021dialoguecrn}
+Dou Hu, Lingwei Wei, and Xiaoyong Huai. 2021.
+\newblock Dialoguecrn: Contextual reasoning networks for emotion recognition in conversations.
+\newblock \emph{arXiv preprint arXiv:2106.01978}.
+
+\bibitem[{Ide and Kawahara(2022)}]{ide2022building}
+Tatsuya Ide and Daisuke Kawahara. 2022.
+\newblock Building a dialogue corpus annotated with expressed and experienced emotions.
+\newblock \emph{arXiv preprint arXiv:2205.11867}.
+
+\bibitem[{Krommyda et~al.(2021)Krommyda, Rigos, Bouklas, and Amditis}]{krommyda2021experimental}
+Maria Krommyda, Anastasios Rigos, Kostas Bouklas, and Angelos Amditis. 2021.
+\newblock An experimental analysis of data annotation methodologies for emotion detection in short text posted on social media.
+\newblock In \emph{Informatics}, volume~8, page~19. MDPI.
+
+\bibitem[{Kuamri and Babu(2017)}]{kuamri2017real}
+Santoshi Kuamri and C~Narendra Babu. 2017.
+\newblock Real time analysis of social media data to understand people emotions towards national parties.
+\newblock In \emph{2017 8th international conference on computing, communication and networking technologies (ICCCNT)}, pages 1--6. IEEE.
+
+\bibitem[{Kusal et~al.(2021)Kusal, Patil, Kotecha, Aluvalu, and Varadarajan}]{kusal2021ai}
+Sheetal Kusal, Shruti Patil, Ketan Kotecha, Rajanikanth Aluvalu, and Vijayakumar Varadarajan. 2021.
+\newblock Ai based emotion detection for textual big data: Techniques and contribution.
+\newblock \emph{Big Data and Cognitive Computing}, 5(3):43.
+
+\bibitem[{Li et~al.(2024)Li, Rusnachenko, and Liang}]{li2024chinchunmei}
+Tian Li, Nicolay Rusnachenko, and Huizhi Liang. 2024.
+\newblock Chinchunmei at wassa 2024 empathy and personality shared task: Boosting llm’s prediction with role-play augmentation and contrastive reasoning calibration.
+\newblock In \emph{Proceedings of the 14th Workshop on Computational Approaches to Subjectivity, Sentiment, \& Social Media Analysis}, pages 385--392.
+
+\bibitem[{Liu et~al.(2022)Liu, Zhao, Hu, Li, and Jin}]{liu2022dialogueein}
+Yuchen Liu, Jinming Zhao, Jingwen Hu, Ruichen Li, and Qin Jin. 2022.
+\newblock Dialogueein: Emotion interaction network for dialogue affective analysis.
+\newblock In \emph{Proceedings of the 29th International Conference on Computational Linguistics}, pages 684--693.
+
+\bibitem[{Plutchik(1982)}]{plutchik1982psycho}
+R~Plutchik. 1982.
+\newblock A psycho evolutionary theory of emotions.
+\newblock \emph{Social Science Information}.
+
+\bibitem[{Rasooli and Tetreault(2015)}]{rasooli-tetrault-2015}
+Mohammad~Sadegh Rasooli and Joel~R. Tetreault. 2015.
+\newblock \href {http://arxiv.org/abs/1503.06733} {Yara parser: {A} fast and accurate dependency parser}.
+\newblock \emph{Computing Research Repository}, arXiv:1503.06733.
+\newblock Version 2.
+
+\bibitem[{Russell and Mehrabian(1977)}]{russell1977evidence}
+James~A Russell and Albert Mehrabian. 1977.
+\newblock Evidence for a three-factor theory of emotions.
+\newblock \emph{Journal of research in Personality}, 11(3):273--294.
+
+\bibitem[{Salam and Gupta(2018)}]{salam2018emotion}
+Shaikh~Abdul Salam and Rajkumar Gupta. 2018.
+\newblock Emotion detection and recognition from text using machine learning.
+\newblock \emph{Int. J. Comput. Sci. Eng}, 6(6):341--345.
+
+\end{thebibliography}

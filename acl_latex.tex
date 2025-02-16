@@ -41,7 +41,9 @@
 %
 % and set <dim> to something 5cm or larger.
 
-\title{Instructions for *ACL Proceedings}
+% \title{Instructions for *ACL Proceedings}
+
+\title{Chinchunmei at SemEval-2025 Task 11: Boosting the emotion perception ability of large language models using Contrastive Reasoning Calibration and Self-refinement}
 
 % Author information can be set in various styles:
 % For several authors from the same institution:
@@ -117,7 +119,7 @@ These instructions should be used both for papers submitted for review and for f
 \end{abstract}
 
 \section{Introduction}
-
+\iffalse
 These instructions are for authors submitting papers to *ACL conferences using \LaTeX. They are not self-contained. All authors must follow the general instructions for *ACL proceedings,\footnote{\url{http://acl-org.github.io/ACLPUB/formatting.html}} and this document contains additional instructions for the \LaTeX{} style files.
 
 The templates include the \LaTeX{} source of this document (\texttt{acl\_latex.tex}),
@@ -125,6 +127,43 @@ the \LaTeX{} style file used to format it (\texttt{acl.sty}),
 an ACL bibliography style (\texttt{acl\_natbib.bst}),
 an example bibliography (\texttt{custom.bib}),
 and the bibliography for the ACL Anthology (\texttt{anthology.bib}).
+\fi
+
+% Text-based Emotion Detection(TBED)一直都是NLP研究中的一个热点。其已被广泛应用于社交媒体分析，心理疾病治疗，用户喜好预测，以及对话系统。基于对Emotion的定义的差异，TBED可简单分为两类做法：(1).若情绪被划分为不同的类别，则情绪识别则主要采用分类算法，通过模型预测文本是否包含对应的情绪 (2). 若情绪被定义为为相互关联的实体且每个实体存在强度差异，则情绪识别大多采用回归算法，通过预测文本在多个情绪维度上的强度来达成目标。同时，由于情绪表达非常敏感且复杂，情绪识别还面临以下挑战：1. 不同情绪的差异往往非常细微，且情绪的表达也往往通过隐形的方式(比喻，或引发情绪的情况)表达出来。 2. 不同的文化背景与语言也会影响情绪的判断。这些挑战暗示了情绪识别不能仅依赖特定字典进行判断，而是需要结合文化，语种，背景知识，与更加先进的语义理解来给出综合判断。
+
+Text-Based Emotion Detection (TBED) has long been a prominent research area in NLP, with widespread applications in social media analysis \cite{kuamri2017real, salam2018emotion, cassab2020ontology}, mental health treatment \cite{kusal2021ai, krommyda2021experimental}, and dialogue systems \cite{liu2022dialogueein,ide2022building,hu2021dialoguecrn}. Depending on how emotions are defined, TBED can be broadly categorized into two approaches: (1). Classification-based methods, where emotions are categorized into discrete labels \cite{ekman1969repertoire,plutchik1982psycho}. (2). Scoring-based methods, where emotions are treated as interrelated entities with varying intensity levels \cite{russell1977evidence}. 
+
+However, due to the nuanced and complex nature of emotional expression, TBED faces several key challenges \cite{al2024challenges}: (1). The distinction between different emotions is often subtle, and emotions are often conveyed implicitly—through metaphors or situational cues rather than explicit words. (2). Cultural and linguistic differences influence emotion perception. These challenges make TBED difficult to rely solely on predefined lexicons. A robust TBED system must integrate cultural context, linguistic diversity, background knowledge, and advanced semantic understanding.
+
+% 本次SemEVAL 2025，主办方在TASK11 上提出了 “[**Bridging the Gap in Text-Based Emotion Detection**](https://github.com/emotion-analysis-project/SemEval2025-task11)” 挑战比赛。其比赛数据集包含多达33个不同的语言，且放出了类别标签和强度标签作为赛题A和赛题B。其需识别的情感为“给定一句话读者认为说话者可能感受到什么样的情绪”，而非读者的情感或语句中提到的其他人的情感。其情感类别定义采用了 Ekman’s的框架(Ekman and Friesen, 1981)，包含六个基础情感分类: anger,fear, sadness, joy, disgust and surprise。同时其在赛题B的强度预测上，为每个情感设立了4个强度level。其赛题设计既覆盖了现有两大TBED做法，也包含了多语言与细微差异识别的挑战。
+
+For SemEval-2025, Task 11, titled Bridging the Gap in Text-Based Emotion Detection, introduces a multilingual benchmark covering 28 languages. The competition consists of task A (classification) and task B (intensity prediction). The goal is to identify the speaker's perceived emotion in a given sentence. Emotion categories follow Ekman's framework\cite{ekman1969repertoire}, encompassing six basic emotions: anger, fear, sadness, joy, disgust, and surprise. Task B further introduces four intensity levels for each emotion. This competition setup encapsulates both primary TBED methodologies while incorporating challenges in multilingual and fine-grained emotion recognition. 
+
+% 为了兼顾赛题A与赛题B两个任务，同时支持对多达33种语言的情感预测，我们放弃了传统的Encoder分类框架，转而使用了生成式大语言模型。通过监督学习，可以让模型直接生成预测标签，并且不同track 可以使用不同的prompt 模版统一到一个模型中。同时，得益于其预训练预料的规模与语种覆盖率，使用大语言模型也能为多语种情感识别提供良好的支持。
+
+To address both tracks while supporting emotion prediction across 28 languages, we give up the traditional encoder-based classification frameworks and adopt the generative large language model (LLM). This decision is driven by its robust multi-task integration capabilities and strong support for cross-linguistic applications.
+
+% 在本次比赛，我们首先设计了标准预测任务，通过训练让LLM直接预测每条样本的emotion label与level。同时，为了强化大语言模型对文本上细微的情感表达差异的识别能力，我们受Chinchunmei的启发引入并改良了Contrastive Reasoning Calibration技术。其原理是通过样本比较的方式，让模型矫正目标样本的打分。同时为了进一步强化大模型对于情感标签预测的准确性，我们引入了Self refinement 流程。通过让大模型判断并修改已有预测，我们能进一步提升部分标签的准确性与鲁棒性。
+
+We first designed a standard prediction task (ST), training the LLM to predict each sample's emotion label and intensity level directly. Meanwhile, to enhance the model's ability to distinguish nuanced emotional traits in text, we employ Contrastive Reasoning Calibration (CRC) \cite{li2024chinchunmei} techniques and refine it to suit this competition. This method allows the model to adjust its predictions through direct sample comparisons. Additionally, to further improve the prediction accuracy, we introduced a Self-refinement process, enabling the model to review and refine its outputs. 
+
+% 我们的核心贡献如下
+
+% 1. 我们将前序CRC技术从1V1 对比拓展到了1V3对比 (CRC4)。通过在一次比较中引入更多的样本，使得模型输出更加鲁棒。
+% 2. 为了强化模型对于标签的认知，我们引入了纠错任务训练。同时，我们复用了纠错任务模版作为self refinement。其可被用在对标准预测，CRC预测以及CRC4预测进行纠错，从而在部分标签上取得更好的效果。
+% 3. 为了缓解英语任务的样本稀少问题，我们融合了多个任务到一个模型中并探索了不同融合方式对于最终预测结果的收益。同时我们也在有限的计算资源下探索了英语与其他语种文本对于各自语种的情感识别的贡献。
+% 4. 基于贡献三中不同的方案在不同语种不同标签上的效果，我们选取了每个标签所对应的最优方案作为我们的提交方案。在最后的比赛排名上，track A与track B的英语语种上我们分别拿到了12/91 和7/42 的成绩。同时在trackA上我们的方案在AMH语种上拿到了第一，16个语种排名前10.在track B上我们的方案在所有的语种排名均在前10.
+
+Our contributions are as follows:
+\begin{itemize}
+	\item We extended the previous CRC technique from 1V1 comparison to 1V3 comparison (CRC4). Incorporating more samples in each comparison enhanced the model's robustness and discriminative ability.
+	\item We introduced an error correction training task to improve the model's understanding of emotion labels. We repurposed the error correction template for Self-refinement, enabling it to refine predictions across ST, CRC, and CRC4 outputs, improving accuracy for certain labels.
+	\item Based on the performance of different task fusion strategies across languages and labels, we selected the optimal approach for each label as our final submission. In the leaderboard, our approach achieved Track A top 10 in 16 languages and 12th in English; Track B top 10 across all languages and 7th in English.
+\end{itemize}
+
+\section{Methodology}
+
+
 
 \section{Engines}
 

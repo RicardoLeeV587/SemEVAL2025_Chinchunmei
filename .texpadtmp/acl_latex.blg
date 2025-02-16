@@ -1,0 +1,54 @@
+This is BibTeX, Version 0.99d (TeX Live 2023)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: /Users/litian/Desktop/SemEVAL2025/SemEVAL2025_Chinchunmei/.texpadtmp/acl_latex.aux
+The style file: ../acl_natbib.bst
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: ../custom.bib
+Warning--can't use both volume and number fields in krommyda2021experimental
+You've used 17 entries,
+            3764 wiz_defined-function locations,
+            843 strings with 9212 characters,
+and the built_in function-call counts, 11946 in all, are:
+= -- 1076
+> -- 489
+< -- 17
++ -- 192
+- -- 139
+* -- 742
+:= -- 1751
+add.period$ -- 71
+call.type$ -- 17
+change.case$ -- 141
+chr.to.int$ -- 18
+cite$ -- 18
+duplicate$ -- 762
+empty$ -- 895
+format.name$ -- 203
+if$ -- 2628
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 163
+newline$ -- 90
+num.names$ -- 68
+pop$ -- 382
+preamble$ -- 1
+purify$ -- 114
+quote$ -- 0
+skip$ -- 667
+stack$ -- 0
+substring$ -- 442
+swap$ -- 402
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 150
+warning$ -- 1
+while$ -- 75
+width$ -- 0
+write$ -- 224
+(There was 1 warning)
