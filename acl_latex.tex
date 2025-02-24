@@ -43,7 +43,7 @@
 
 % \title{Instructions for *ACL Proceedings}
 
-\title{Chinchunmei at SemEval-2025 Task 11: Boosting the emotion perception ability of large language models using Contrastive Reasoning Calibration and Self-refinement}
+\title{Chinchunmei at SemEval-2025 Task 11: Boosting the Emotion Perception Ability of Large Language Models using Contrastive Concept}
 
 % Author information can be set in various styles:
 % For several authors from the same institution:
@@ -143,6 +143,7 @@ For SemEval-2025, Task 11, titled Bridging the Gap in Text-Based Emotion Detecti
 
 To address both tracks while supporting emotion prediction across 28 languages, we give up the traditional encoder-based classification frameworks and adopt the generative large language model (LLM). This decision is driven by its robust multi-task integration capabilities and strong support for cross-linguistic applications.
 
+\iffalse
 % 在本次比赛，我们首先设计了标准预测任务，通过训练让LLM直接预测每条样本的emotion label与level。同时，为了强化大语言模型对文本上细微的情感表达差异的识别能力，我们受Chinchunmei的启发引入并改良了Contrastive Reasoning Calibration技术。其原理是通过样本比较的方式，让模型矫正目标样本的打分。同时为了进一步强化大模型对于情感标签预测的准确性，我们引入了Self refinement 流程。通过让大模型判断并修改已有预测，我们能进一步提升部分标签的准确性与鲁棒性。
 
 We first designed a standard prediction task (ST), training the LLM to predict each sample's emotion label and intensity level directly. Meanwhile, to enhance the model's ability to distinguish nuanced emotional traits in text, we employ Contrastive Reasoning Calibration (CRC) \cite{li2024chinchunmei} techniques and refine it to suit this competition. This method allows the model to adjust its predictions through direct sample comparisons. Additionally, to further improve the prediction accuracy, we introduced a Self-refinement process, enabling the model to review and refine its outputs. 
@@ -160,8 +161,78 @@ Our contributions are as follows:
 	\item We introduced an error correction training task to improve the model's understanding of emotion labels. We repurposed the error correction template for Self-refinement, enabling it to refine predictions across ST, CRC, and CRC4 outputs, improving accuracy for certain labels.
 	\item Based on the performance of different task fusion strategies across languages and labels, we selected the optimal approach for each label as our final submission. In the leaderboard, our approach achieved Track A top 10 in 16 languages and 12th in English; Track B top 10 across all languages and 7th in English.
 \end{itemize}
+\fi
+
+% 由于情感表达的复杂性和情感标签的不确定性，我们决定采用两套备选方案：基于样本的对比方案和基于生成结果的对比方案。基于样本的对比方案采用CRC技术。其原理是通过样本比较的方式，让模型生成多条更加可靠的的预测并进行投票表决。基于生成结果的对比方案采用偏好优化技术，通过增加正确输出的对数概率并减少错误输出的对数概率，优化模型对于标签的理解能力。受限于计算资源限制，我们探索了DPO与Orpo这两个无需reward model的方案。
+
+Due to the complexity of emotional expression and the ambiguity of sentiment labels, we adopted two alternative approaches: a sample-based contrastive scheme and a generation-based contrastive scheme. The sample-based approach leverages Contrastive Reasoning Calibration technology (CRC) \cite{li2024chinchunmei}, which enhances prediction reliability by generating multiple predictions through sample comparisons and aggregating them via majority voting. The generation-based contrastive scheme employs preference optimization techniques \cite{rafailov2023direct, hong2024orpo, meng2025simpo}, refining the model’s comprehension of sentiment labels by increasing the log probability of correct outputs while reducing that of incorrect ones. Given computational constraints, we explored DPO \cite{rafailov2023direct}, SimPO\cite{meng2025simpo},  ORPO \cite{rafailov2023direct}, three methods that eliminate the need for a reward model.
+
+% 我们的核心贡献如下
+
+% 1. 我们在有限的计算资源中探索了非英语数据对于英语预测的贡献。令人意外的是，试验结果显示非英语数据的引入会损害英语情感预测的效果，不论是分类任务（track a)还是打分任务(track b).
+% 2. 我们详细探索了两种对比方案在该数据集上的效果。在样本对比方案类别上，CRC技术对于该数据集只有负收益。在偏好优化上，也只有DPO在track b上展现了明显的正向收益。SimPO与Orpo不仅会带来效果下降，甚至会让模型丧失规范输出的能力，从而影响结果提取。
+% 3. 在最后的比赛排名上，track A与track B的英语语种上我们分别拿到了12/91 和7/42 的成绩。同时在trackA上我们的方案在AMH语种上拿到了第一，16个语种排名前10.在track B上我们的方案在所有的语种排名均在前10.
+
+Our key contributions are as follows:
+
+\begin{itemize}
+	\item We explored the impact of non-English data on English sentiment prediction under limited computational resources. Surprisingly, experimental results indicate that incorporating non-English data degrades performance in both classification tasks (Track A) and scoring tasks (Track B).
+	\item We conducted an in-depth evaluation of two contrastive approaches on this dataset. In the sample-based contrastive category, CRC technology yielded only negative returns. For preference optimization, DPO demonstrated a significant positive effect on Track B, whereas SimPO and ORPO not only led to performance degradation but also impaired the model's ability to produce well-structured outputs, compromising result extraction.
+	\item In the leaderboard, our approach achieved Track A top 10 in 16 languages and 12th in English; Track B top 10 across all languages and 7th in English.
+\end{itemize}
 
 \section{Methodology}
+
+% 得益于生成式模型的统一预测范式，我们能轻易整合不同赛题不同任务到一个模型中，通过在推理式采用不同的prompt来指定模型需执行的赛题或任务。我们首先为两个赛题设计了不同的标准预测模版，让模型直接输出所有标签的预测结果。其次，针对样本对比方案，我们使用了Contrastive Reasoning Calibration方案，让模型在某个标签上先对比两条样本的预测情况，再给出各个样本的实际预测结果。针对生成结果的对比方案，我们使用了DPO，SimPO与Orpo，通过构建生成的正反例强化模型对于预测的敏感程度。
+
+Leveraging the unified prediction paradigm of generative models, we seamlessly integrate both competition tracks and different subtasks into a single model. By employing task-specific prompts during inference, we directe the model to perform the required prediction subtask accordingly. 
+
+First, we design standard prediction templates (ST) for the two tracks, enabling the model to output all label predictions directly. Second, for the sample-based contrastive approach, we adopt the Contrastive Reasoning Calibration (CRC) method, where the model first compares the predictions of two samples for a given label before generating the final predictions for each sample. Lastly, for the generation-based contrastive approach, we compare DPO, SimPO, and ORPO, enhancing the model’s sensitivity to prediction correctness by constructing positive and negative examples during training.
+
+\subsection{Standard Prediction}
+
+% 标准任务为利用大语言模型直接进行预测。我们将文本内容整合到预先设计好的prompt模版中作为输入，并将标签结果format成自然语言作为输出的ground truth。通过对格式化好的输入与ground truth进行监督微调得到标准预测的模型。在推理时采用同样的prompt模版整合代推理文字作为输入，通过解析输出的自然语言，拿到各个标签对应的结果。其模版如Appendix 1所示
+The standard prediction task (ST) involves direct prediction using a large language model. We integrate the text content into a pre-designed prompt template as input and format the label results as the ground truth output. The model is then fine-tuned through supervised learning (SFT) using this formatted input and corresponding output.
+
+During inference, we apply the same prompt template to incorporate the input text for prediction. By parsing the generated output, we extract the corresponding label predictions. The template details can be found in Appendix 1.
+
+\subsection{Contrastive Reasoning Calibration}
+% CRC任务为样本对比任务。通过训练模型对比两条样本在打分上的异同，从而强化模型对于情感表达细微差异的识别能力。其分为训练和预测两个部分。
+The CRC task is a sample-based contrastive learning approach designed to enhance the model’s ability to discern subtle differences in sentiment expression. By comparing the scoring variations between two samples, model generated calibrated prediction. This process consists of training and inference phases.
+
+% 在训练中，我们随机从训练集中抽取两条样本，基于Appendix 2所示的模版构成对比组输入。其目标生成包含两个部分：对比结论与各自预测结果。其对比结论为一段自然语言，总结了两条样本在某个标签上的高低/强弱情况。其预测结果为每个样本在某一标签上的具体打分。其输出模版如Appendix3 所示。
+
+During training, we randomly select two samples from the training set and construct a contrastive input using the template in Appendix 2. The target output comprises two components: a contrastive summary and predictions. The contrastive summary, expressed in natural language, highlights the  existence or intensity of a specific label between the two samples. The predictions provide explicit scores for each sample on the given label. The format of the output is shown in Appendix 3.
+
+% 由于两两随机采样能生成巨量的训练样本，因此我们为track a和track b分别设置了一个样本总数上线。对于track a，每个标签采样3000条对比样本。对于track b，每个标签采样6000条对比样本。这是因为相比于track a ，track b的预测打分多于track a。
+
+Given that random pairwise sampling can generate a vast amount of training data, we imposed an upper limit on the total number of sampled pairs for each track. Specifically, for Track A, we sampled 3,000 contrastive pairs per label, while for Track B, we sampled 6,000 pairs per label, as Track B involves more fine-grained scoring compared to Track A.
+
+% 在推理时，每条待预测的样本将同随机抽取的训练样本构建对比组。由于模型对于训练样本预测极为准确，因此我们希望其可作为预测的对比量纲，从而削减预测的不确定性。两条样本被整合到Appendix 2 所示的模版中作为输入，待预测的样本将会被随机放置在位置1或位置2.重复上述过程N次获得N条输入，并由模型生成N条预测结果。最终通过投票机制，将得票最高的打分作为最终输出。
+
+During inference, each test sample is paired with a randomly selected training sample to form a contrastive group. Since the model achieves highly accurate predictions on training samples, these samples serve as reliable reference points, reducing prediction uncertainty. The two samples are integrated into the prompt template (Appendix 2), with the test sample randomly assigned to either position 1 or position 2. This process is repeated $N$ times to generate $N$ different input instances, producing $N$ predictions. The final score is determined through a voting mechanism, where the most frequently predicted score is selected as the final output.
+
+\subsection{Preference Optimization}
+
+% 为了强化模型对于打分的敏感性，我们还引入了perference optimiztion。 但是，受限于计算资源，我们仅试验了无需reward model的技术方案。其中包括DPO， SimPO， 以及Orpo
+
+To enhance the model’s sensitivity to scoring, we incorporate preference optimization. However, due to computational constraints, we only explore techniques that do not require a reward model, including DPO, SimPO, and ORPO.
+
+% Direct Preference Optimization (DPO)通过**相对概率比**来优化语言模型，使其更倾向于偏好回答。(EQ1)。 pai_theta与pai_ref分别指代待优化的模型和初始模型。y_w和y_l分别指代正确的输出和错误的输出。Beta为缩放超参数。该优化流程被用在SFT之后
+
+DPO optimizes the language model by maximizing the relative probability ratio to favor preferred outputs (EQ1). Here, $\pi_{\theta}$ and $\pi_{ref}$ represent the target and reference models, respectively, while $y_w$ and $y_l$ denote the correct and incorrect outputs. $\beta$ is a scaling hyperparameter. This optimization process is applied after SFT.
+
+% SimPO采用类似的优化目标（EQ2）。通过直接优化目标模型的输出概率，SimPO使模型更偏向于偏好答案。然而其简化了DPO，丢弃了参考模型，并且使用生成长度约束loss。该优化流程被用在SFT之后。
+
+SimPO adopts a similar optimization objective (EQ2), directly enhancing the probability of the target model’s preferred outputs. However, it simplifies DPO by discarding the reference model and using a length-constrained loss. Like DPO, SimPO is also applied after SFT.
+
+% Orpo则是对将对比的思路放到了SFT阶段(EQ3)。通过在SFT loss上新增正负例的对比term，使得高奖励的回答在训练过程中获得更高的学习权重。该流程会直接替换SFT流程。
+
+ORPO integrates the contrastive approach directly into the SFT phase (EQ3). By adding contrastive terms for $y_w$ and $y_l$ in the SFT loss function, ORPO ensures that highly rewarded responses receive greater weight during training. This process replaces the standard SFT procedure.
+
+% 在训练样本准备时，为了强化模型对标签打分的敏感程度，我们仅mute 标签打分作为y_l。针对标准预测任务，mute 一个，两个，三个，四个，五个标签的概率为[63.8%, 26.1%, 8.3%, 1.6%, 0.1%]。针对CRC任务，mute 一条与两条样本的打分的概率为[90%, 10%]. 当mutation触发时，随机从标签剩余取值中取一个作为错误打分。
+
+In preparing training samples, to refine the model’s sensitivity to label scores, we muted label scores as $y_l$. For the standard prediction task, the probabilities of muting one, two, three, four, or five labels are [63.8\%, 26.1\%, 8.3\%, 1.6\%, 0.1\%], respectively. For the CRC task, the probabilities of muting one or two sample scores are [90\%, 10\%]. When mutation occurs, a random incorrect score is chosen from the remaining label values.
 
 
 
