@@ -35,6 +35,8 @@
 %additional package(s)
 \usepackage{graphicx}
 
+\usepackage{multirow}
+
 % If the title and author information does not fit in the area allocated, uncomment the following
 %
 %\setlength\titlebox{<dim>}
@@ -143,29 +145,19 @@ For SemEval-2025, Task 11, titled Bridging the Gap in Text-Based Emotion Detecti
 
 To address both tracks while supporting emotion prediction across 28 languages, we give up the traditional encoder-based classification frameworks and adopt the generative large language model (LLM). This decision is driven by its robust multi-task integration capabilities and strong support for cross-linguistic applications.
 
-\iffalse
-% 在本次比赛，我们首先设计了标准预测任务，通过训练让LLM直接预测每条样本的emotion label与level。同时，为了强化大语言模型对文本上细微的情感表达差异的识别能力，我们受Chinchunmei的启发引入并改良了Contrastive Reasoning Calibration技术。其原理是通过样本比较的方式，让模型矫正目标样本的打分。同时为了进一步强化大模型对于情感标签预测的准确性，我们引入了Self refinement 流程。通过让大模型判断并修改已有预测，我们能进一步提升部分标签的准确性与鲁棒性。
-
-We first designed a standard prediction task (ST), training the LLM to predict each sample's emotion label and intensity level directly. Meanwhile, to enhance the model's ability to distinguish nuanced emotional traits in text, we employ Contrastive Reasoning Calibration (CRC) \cite{li2024chinchunmei} techniques and refine it to suit this competition. This method allows the model to adjust its predictions through direct sample comparisons. Additionally, to further improve the prediction accuracy, we introduced a Self-refinement process, enabling the model to review and refine its outputs. 
-
-% 我们的核心贡献如下
-
-% 1. 我们将前序CRC技术从1V1 对比拓展到了1V3对比 (CRC4)。通过在一次比较中引入更多的样本，使得模型输出更加鲁棒。
-% 2. 为了强化模型对于标签的认知，我们引入了纠错任务训练。同时，我们复用了纠错任务模版作为self refinement。其可被用在对标准预测，CRC预测以及CRC4预测进行纠错，从而在部分标签上取得更好的效果。
-% 3. 为了缓解英语任务的样本稀少问题，我们融合了多个任务到一个模型中并探索了不同融合方式对于最终预测结果的收益。同时我们也在有限的计算资源下探索了英语与其他语种文本对于各自语种的情感识别的贡献。
-% 4. 基于贡献三中不同的方案在不同语种不同标签上的效果，我们选取了每个标签所对应的最优方案作为我们的提交方案。在最后的比赛排名上，track A与track B的英语语种上我们分别拿到了12/91 和7/42 的成绩。同时在trackA上我们的方案在AMH语种上拿到了第一，16个语种排名前10.在track B上我们的方案在所有的语种排名均在前10.
-
-Our contributions are as follows:
-\begin{itemize}
-	\item We extended the previous CRC technique from 1V1 comparison to 1V3 comparison (CRC4). Incorporating more samples in each comparison enhanced the model's robustness and discriminative ability.
-	\item We introduced an error correction training task to improve the model's understanding of emotion labels. We repurposed the error correction template for Self-refinement, enabling it to refine predictions across ST, CRC, and CRC4 outputs, improving accuracy for certain labels.
-	\item Based on the performance of different task fusion strategies across languages and labels, we selected the optimal approach for each label as our final submission. In the leaderboard, our approach achieved Track A top 10 in 16 languages and 12th in English; Track B top 10 across all languages and 7th in English.
-\end{itemize}
-\fi
+\begin{figure*}[h]
+% \small
+  \centering
+  \includegraphics[width=430pt]{Overall}
+  \vspace{-5pt}
+  \caption{The 3 types of technical solutions we adopted in this competition.}
+  \label{fig:Overall}
+ \vspace{-15pt}
+\end{figure*}
 
 % 由于情感表达的复杂性和情感标签的不确定性，我们决定采用两套备选方案：基于样本的对比方案和基于生成结果的对比方案。基于样本的对比方案采用CRC技术。其原理是通过样本比较的方式，让模型生成多条更加可靠的的预测并进行投票表决。基于生成结果的对比方案采用偏好优化技术，通过增加正确输出的对数概率并减少错误输出的对数概率，优化模型对于标签的理解能力。受限于计算资源限制，我们探索了DPO与Orpo这两个无需reward model的方案。
 
-Due to the complexity of emotional expression and the ambiguity of sentiment labels, we adopted two alternative approaches: a sample-based contrastive scheme and a generation-based contrastive scheme. The sample-based approach leverages Contrastive Reasoning Calibration technology (CRC) \cite{li2024chinchunmei}, which enhances prediction reliability by generating multiple predictions through sample comparisons and aggregating them via majority voting. The generation-based contrastive scheme employs preference optimization techniques \cite{rafailov2023direct, hong2024orpo, meng2025simpo}, refining the model’s comprehension of sentiment labels by increasing the log probability of correct outputs while reducing that of incorrect ones. Given computational constraints, we explored DPO \cite{rafailov2023direct}, SimPO\cite{meng2025simpo},  ORPO \cite{rafailov2023direct}, three methods that eliminate the need for a reward model.
+Due to the complexity of emotional expression and the ambiguity of sentiment labels, we adopted two alternative approaches: a sample-based contrastive scheme and a generation-based contrastive scheme. The sample-based approach leverages Contrastive Reasoning Calibration technology (CRC) \cite{li2024chinchunmei}, which enhances prediction reliability by generating multiple predictions through sample comparisons and aggregating them via majority voting. The generation-based contrastive scheme employs preference optimization techniques \cite{rafailov2023direct, hong2024orpo, meng2025simpo}, refining the model’s comprehension of sentiment labels by increasing the log probability of correct outputs while reducing that of incorrect ones. Given computational constraints, we explored DPO \cite{rafailov2023direct} and SimPO\cite{meng2025simpo}, two methods that eliminate the need for a reward model.
 
 % 我们的核心贡献如下
 
@@ -177,7 +169,7 @@ Our key contributions are as follows:
 
 \begin{itemize}
 	\item We explored the impact of non-English data on English sentiment prediction under limited computational resources. Surprisingly, experimental results indicate that incorporating non-English data degrades performance in both classification tasks (Track A) and scoring tasks (Track B).
-	\item We conducted an in-depth evaluation of two contrastive approaches on this dataset. In the sample-based contrastive category, CRC technology yielded only negative returns. For preference optimization, DPO demonstrated a significant positive effect on Track B, whereas SimPO and ORPO not only led to performance degradation but also impaired the model's ability to produce well-structured outputs, compromising result extraction.
+	\item We conducted an in-depth evaluation of two contrastive approaches on this dataset. In the sample-based contrastive category, CRC technology yielded only negative returns. In the generation-based contrastive category, DPO demonstrated a significant positive effect on Track B, whereas SimPO not only led to performance degradation but also impaired the model's ability to produce well-structured outputs, compromising result extraction.
 	\item In the leaderboard, our approach achieved Track A top 10 in 16 languages and 12th in English; Track B top 10 across all languages and 7th in English.
 \end{itemize}
 
@@ -185,24 +177,29 @@ Our key contributions are as follows:
 
 % 得益于生成式模型的统一预测范式，我们能轻易整合不同赛题不同任务到一个模型中，通过在推理式采用不同的prompt来指定模型需执行的赛题或任务。我们首先为两个赛题设计了不同的标准预测模版，让模型直接输出所有标签的预测结果。其次，针对样本对比方案，我们使用了Contrastive Reasoning Calibration方案，让模型在某个标签上先对比两条样本的预测情况，再给出各个样本的实际预测结果。针对生成结果的对比方案，我们使用了DPO，SimPO与Orpo，通过构建生成的正反例强化模型对于预测的敏感程度。
 
-Leveraging the unified prediction paradigm of generative models, we seamlessly integrate both competition tracks and different subtasks into a single model. By employing task-specific prompts during inference, we directe the model to perform the required prediction subtask accordingly. 
+Leveraging the unified prediction paradigm of generative models, we can seamlessly integrate both competition tracks and different subtasks into a single model. By employing task-specific prompts during inference, we direct the model to perform the required prediction subtask accordingly. Therefore, we develop 3 types of approaches, as shown in Figure~\ref{fig:Overall}.
 
-First, we design standard prediction templates (ST) for the two tracks, enabling the model to output all label predictions directly. Second, for the sample-based contrastive approach, we adopt the Contrastive Reasoning Calibration (CRC) method, where the model first compares the predictions of two samples for a given label before generating the final predictions for each sample. Lastly, for the generation-based contrastive approach, we compare DPO, SimPO, and ORPO, enhancing the model’s sensitivity to prediction correctness by constructing positive and negative examples during training.
+First, we design standard prediction (SP) templates for two tracks, enabling the model to output all label predictions directly. Second, for the sample-based contrastive category, we adopt the contrastive reasoning calibration (CRC) method, where the model first compares the predictions of two samples for a given label before generating the final predictions for each sample. Lastly, for the generation-based contrastive category, we compare DPO and SimPO, enhancing the model’s sensitivity for prediction correctness by comparing positive and negative outputs during training.
 
-\subsection{Standard Prediction}
+\subsection{Standard prediction approach}
+\label{sec:SP}
 
 % 标准任务为利用大语言模型直接进行预测。我们将文本内容整合到预先设计好的prompt模版中作为输入，并将标签结果format成自然语言作为输出的ground truth。通过对格式化好的输入与ground truth进行监督微调得到标准预测的模型。在推理时采用同样的prompt模版整合代推理文字作为输入，通过解析输出的自然语言，拿到各个标签对应的结果。其模版如Appendix 1所示
-The standard prediction task (ST) involves direct prediction using a large language model. We integrate the text content into a pre-designed prompt template as input and format the label results as the ground truth output. The model is then fine-tuned through supervised learning (SFT) using this formatted input and corresponding output.
+The standard prediction refers to direct prediction using a large language model. We integrate the text content into a pre-designed prompt template as input and format the label results as the ground truth output. The model is then trained through supervised learning (SFT) using this formatted input and corresponding output.
 
-During inference, we apply the same prompt template to incorporate the input text for prediction. By parsing the generated output, we extract the corresponding label predictions. The template details can be found in Appendix 1.
+During inference, we apply the same prompt template to incorporate the input text for prediction. By parsing the generated output, we extract the corresponding label predictions. The template details can be found in Appendix~\ref{sec:app_PT}.
 
-\subsection{Contrastive Reasoning Calibration}
+\subsection{Sample-based contrastive approach}
+\label{sec:CRC}
 % CRC任务为样本对比任务。通过训练模型对比两条样本在打分上的异同，从而强化模型对于情感表达细微差异的识别能力。其分为训练和预测两个部分。
-The CRC task is a sample-based contrastive learning approach designed to enhance the model’s ability to discern subtle differences in sentiment expression. By comparing the scoring variations between two samples, model generated calibrated prediction. This process consists of training and inference phases.
+In sample-based contrastive category, we use CRC, a technique designed to enhance the model’s ability to discern subtle differences in samples. 
+% By comparing the scoring variations between two samples, model generated calibrated prediction. 
+By having the model compare the score variations between two samples, model can better understand their distinctions and generate calibrated predictions.
+This process consists of training and inference phases.
 
 % 在训练中，我们随机从训练集中抽取两条样本，基于Appendix 2所示的模版构成对比组输入。其目标生成包含两个部分：对比结论与各自预测结果。其对比结论为一段自然语言，总结了两条样本在某个标签上的高低/强弱情况。其预测结果为每个样本在某一标签上的具体打分。其输出模版如Appendix3 所示。
 
-During training, we randomly select two samples from the training set and construct a contrastive input using the template in Appendix 2. The target output comprises two components: a contrastive summary and predictions. The contrastive summary, expressed in natural language, highlights the  existence or intensity of a specific label between the two samples. The predictions provide explicit scores for each sample on the given label. The format of the output is shown in Appendix 3.
+During training, we randomly select two samples from the training set and construct a contrastive data using the template in Appendix~\ref{sec:app_PT}. The target output comprises two components: a contrastive summary and predictions. The contrastive summary, expressed in natural language, highlights the existence or intensity difference between two samples on a specific label. The predictions provide explicit scores for both samples on the given label. 
 
 % 由于两两随机采样能生成巨量的训练样本，因此我们为track a和track b分别设置了一个样本总数上线。对于track a，每个标签采样3000条对比样本。对于track b，每个标签采样6000条对比样本。这是因为相比于track a ，track b的预测打分多于track a。
 
@@ -210,31 +207,171 @@ Given that random pairwise sampling can generate a vast amount of training data,
 
 % 在推理时，每条待预测的样本将同随机抽取的训练样本构建对比组。由于模型对于训练样本预测极为准确，因此我们希望其可作为预测的对比量纲，从而削减预测的不确定性。两条样本被整合到Appendix 2 所示的模版中作为输入，待预测的样本将会被随机放置在位置1或位置2.重复上述过程N次获得N条输入，并由模型生成N条预测结果。最终通过投票机制，将得票最高的打分作为最终输出。
 
-During inference, each test sample is paired with a randomly selected training sample to form a contrastive group. Since the model achieves highly accurate predictions on training samples, these samples serve as reliable reference points, reducing prediction uncertainty. The two samples are integrated into the prompt template (Appendix 2), with the test sample randomly assigned to either position 1 or position 2. This process is repeated $N$ times to generate $N$ different input instances, producing $N$ predictions. The final score is determined through a voting mechanism, where the most frequently predicted score is selected as the final output.
+During inference, each test sample is paired with a randomly selected training sample to form a contrastive input. Since the model achieves highly accurate predictions on training samples, these samples serve as reliable reference points, reducing prediction uncertainty. The two samples are integrated into the prompt template (Appendix~\ref{sec:app_PT}), with the test sample randomly assigned to either position 1 or position 2. This process is repeated $N$ times to generate $N$ different input instances, producing $N$ predictions. The final score is determined through a voting mechanism, where the most frequently predicted score is selected as the final output.
 
-\subsection{Preference Optimization}
+\subsection{Generation-based contrastive approaches}
 
 % 为了强化模型对于打分的敏感性，我们还引入了perference optimiztion。 但是，受限于计算资源，我们仅试验了无需reward model的技术方案。其中包括DPO， SimPO， 以及Orpo
 
-To enhance the model’s sensitivity to scoring, we incorporate preference optimization. However, due to computational constraints, we only explore techniques that do not require a reward model, including DPO, SimPO, and ORPO.
+To enhance the model’s sensitivity to scoring, we incorporate preference optimization. However, due to computational constraints, we only explore techniques that do not require a reward model, such as DPO and SimPO.
 
 % Direct Preference Optimization (DPO)通过**相对概率比**来优化语言模型，使其更倾向于偏好回答。(EQ1)。 pai_theta与pai_ref分别指代待优化的模型和初始模型。y_w和y_l分别指代正确的输出和错误的输出。Beta为缩放超参数。该优化流程被用在SFT之后
 
-DPO optimizes the language model by maximizing the relative probability ratio to favor preferred outputs (EQ1). Here, $\pi_{\theta}$ and $\pi_{ref}$ represent the target and reference models, respectively, while $y_w$ and $y_l$ denote the correct and incorrect outputs. $\beta$ is a scaling hyperparameter. This optimization process is applied after SFT.
+DPO optimizes the language model by maximizing the relative probability ratio to favor preferred outputs (Eq~\ref{eq:dpo}). Here, $\pi_{\theta}$ and $\pi_{ref}$ represent the target and reference models, respectively, while $y_w$ and $y_l$ denote the correct and incorrect outputs. $\beta$ is a scaling hyperparameter. This optimization process is applied after SFT.
+
+\begin{equation}
+\label{eq:dpo}
+% \mathcal{L}_{DPO} = \\
+-log\sigma(\beta log \frac{\pi_{\theta}(y_w|x)}{\pi_{ref}(y_w|x)} - \beta log \frac{\pi_{\theta}(y_l|x)}{\pi_{ref}(y_l|x)} )
+\end{equation}
 
 % SimPO采用类似的优化目标（EQ2）。通过直接优化目标模型的输出概率，SimPO使模型更偏向于偏好答案。然而其简化了DPO，丢弃了参考模型，并且使用生成长度约束loss。该优化流程被用在SFT之后。
 
-SimPO adopts a similar optimization objective (EQ2), directly enhancing the probability of the target model’s preferred outputs. However, it simplifies DPO by discarding the reference model and using a length-constrained loss. Like DPO, SimPO is also applied after SFT.
+SimPO adopts a similar optimization objective (Eq~\ref{eq:simpo}), directly enhancing the probability of the target model’s preferred outputs. However, it simplifies DPO by discarding the reference model and using sequence length to normalize the loss. Additionally, it adopts a hyperparameter $\gamma$ to ensure that the likelihood for the correct response exceeds the incorrect response by $\gamma$. Like DPO, SimPO is also applied after SFT.
 
+\begin{equation}
+\label{eq:simpo}
+-log\sigma (\frac{\beta}{|y_w|}log\pi_{\theta} (y_w|x) - \frac{\beta}{|y_l|}log\pi_{\theta} (y_l|x) - \gamma)
+\end{equation}
+\iffalse
 % Orpo则是对将对比的思路放到了SFT阶段(EQ3)。通过在SFT loss上新增正负例的对比term，使得高奖励的回答在训练过程中获得更高的学习权重。该流程会直接替换SFT流程。
 
-ORPO integrates the contrastive approach directly into the SFT phase (EQ3). By adding contrastive terms for $y_w$ and $y_l$ in the SFT loss function, ORPO ensures that highly rewarded responses receive greater weight during training. This process replaces the standard SFT procedure.
+ORPO integrates the contrastive approach directly into the SFT phase (EQ3). By adding contrastive terms for $y_w$ and $y_l$ in the SFT loss function, ORPO ensures that correct responses receive greater weight during training. This process replaces the original SFT procedure.
 
-% 在训练样本准备时，为了强化模型对标签打分的敏感程度，我们仅mute 标签打分作为y_l。针对标准预测任务，mute 一个，两个，三个，四个，五个标签的概率为[63.8%, 26.1%, 8.3%, 1.6%, 0.1%]。针对CRC任务，mute 一条与两条样本的打分的概率为[90%, 10%]. 当mutation触发时，随机从标签剩余取值中取一个作为错误打分。
+\begin{equation}
+\mathcal{L}_{SFT} + \beta log\frac{\pi_{\theta}(y_w|x)}{1-\pi_{\theta}(y_w|x)} - \beta log\frac{\pi_{\theta}(y_l|x)}{1-\pi_{\theta}(y_l|x)}
+\end{equation}
+\fi
 
-In preparing training samples, to refine the model’s sensitivity to label scores, we muted label scores as $y_l$. For the standard prediction task, the probabilities of muting one, two, three, four, or five labels are [63.8\%, 26.1\%, 8.3\%, 1.6\%, 0.1\%], respectively. For the CRC task, the probabilities of muting one or two sample scores are [90\%, 10\%]. When mutation occurs, a random incorrect score is chosen from the remaining label values.
+% 在训练样本准备时，为了强化模型对标签打分的敏感程度， 我们仅mute了标签打分。Chosen sample 为原ST的ground truth， Rejected sample为同样的SP模版但是使用了muted过后的分数Mute 一个，两个，三个，四个，五个标签的概率为[63.8%, 26.1%, 8.3%, 1.6%, 0.1%]。当mutation触发时，随机从标签剩余取值中取一个作为错误打分。
+ 
+ During training sample preparation, to enhance the model's sensitivity to label scoring, we muted only the label scores to generate $y_l$. The $y_w$ corresponds to the original SP ground truth, while the $y_l$ follows the same SP template but with muted scores. The probabilities of muting one, two, three, four, and five labels are [63.8\%, 26.1\%, 8.3\%, 1.6\%, 0.1\%], respectively. When mutation is triggered, a random value is selected from the remaining label values as the incorrect score.
 
+\section{Experiment}
 
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table*}[]
+\centering
+\caption{English test results of all models in Track A}
+\label{tab:tracka_result}
+\begin{tabular}{llccccccc}
+\hline
+\multirow{2}{*}{\textbf{Model}} &
+  \multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}l@{}}Training\\ Language\end{tabular}}} &
+  \multicolumn{7}{c}{\textbf{Track A - eng}} \\
+ &
+   &
+  \textbf{Macro} &
+  \textbf{Micro} &
+  \textbf{Anger} &
+  \textbf{Fear} &
+  \textbf{Joy} &
+  \textbf{Sadness} &
+  \textbf{Surprise} \\ \hline
+SP    & English      & \textbf{0.828} & \textbf{0.808} & 0.738          & \textbf{0.876} & 0.824          & 0.818          & 0.784          \\
+SP    & Multilingual & 0.820          & 0.802          & 0.742          & 0.865          & 0.814          & 0.808          & 0.780          \\
+CRC   & English      & 0.819          & 0.802          & \textbf{0.752} & 0.865          & 0.811          & 0.819          & 0.765          \\
+DPO   & English      & 0.827          & 0.806          & 0.736          & 0.875          & 0.816          & 0.821          & \textbf{0.785} \\
+SimPO & English      & 0.748          & 0.741          & 0.700          & 0.737          & \textbf{0.827} & \textbf{0.832} & 0.607          \\ \hline
+\end{tabular}
+\end{table*}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table*}[]
+\centering
+\caption{English test set results of each model in Track B}
+\label{tab:trackb_result}
+\begin{tabular}{llrrrrrrr}
+\hline
+\multirow{2}{*}{\textbf{Model}} &
+  \multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}l@{}}Training\\ Language\end{tabular}}} &
+  \multicolumn{7}{c}{\textbf{Track B - eng}} \\
+ &
+   &
+  \multicolumn{1}{c}{\textbf{Macro}} &
+  \multicolumn{1}{c}{\textbf{Micro}} &
+  \multicolumn{1}{c}{\textbf{Anger}} &
+  \multicolumn{1}{c}{\textbf{Fear}} &
+  \multicolumn{1}{c}{\textbf{Joy}} &
+  \multicolumn{1}{c}{\textbf{Sadness}} &
+  \multicolumn{1}{c}{\textbf{Surprise}} \\ \hline
+SP    & English      & 0.845          & 0.823          & \textbf{0.812} & 0.841          & \textbf{0.850} & 0.847          & 0.763          \\
+SP    & Multilingual & 0.835          & 0.815          & 0.807          & 0.816          & 0.845          & 0.840          & 0.765          \\
+CRC   & English      & 0.828          & 0.805          & 0.796          & 0.807          & 0.836          & 0.837          & 0.750          \\
+DPO   & English      & \textbf{0.846} & \textbf{0.824} & 0.810          & \textbf{0.844} & 0.846          & \textbf{0.849} & \textbf{0.773} \\
+SimPO & English      & 0.770          & 0.741          & 0.700          & 0.737          & 0.827          & 0.832          & 0.607          \\ \hline
+\end{tabular}
+\end{table*}
+
+% 本次比赛包含赛题A与赛题B。其中赛题A包含28个语种，赛题B包含11个语种。每个语种包含千计的样本，且部分语种的样本在不同赛题上并不一致。两个赛题的标签为Anger, Fear, Joy, Sadness, Surprise, 和disgust。部分语种存在标签缺失的情况(如英语不包含disgust标签)。待预测内容为不包含前序对话的单句对话文本。赛题A的评估指标为F1 score。赛题B的评估指标为Pearson Correlation。每个赛题包含训练集，开发集与测试集。但是，由于开发集太小，评估指标非常不稳定，因此我们的所有结果均均跑在测试集上。
+
+In this competition, we participate in Track A and Track B. Track A covers 28 languages, while Track B includes 11 languages. Each language contains thousands of samples. Some languages use the same dataset for both Track A and Track B. Both tracks share the same sentiment labels: Anger, Fear, Joy, Sadness, Surprise, and Disgust. However, some languages have missing labels (e.g., English does not include the Disgust label). All sample contents are single-turn dialogue without prior dialogue. Track A is evaluated using the F1 score, while Track B uses Pearson Correlation, with both metrics computed in Macro and Micro modes. Macro calculates the overall score across all labels, while Micro first computes per-label scores and then averages them. Although training, development, and test sets are provided, the development set is too small, leading to unstable evaluation results. Therefore, all reported results are based on the test set.
+
+% 我们所有任务模型均由Llama3-instruct-8B微调而来。这是因为其优异的多语种支持与可接受的计算资源开销。我们利用其tokenizer进行了encoder-decoder流程，通过检查恢复出来的文本与原始文本的一致性来筛选其支持的语种。经过实验，我们确认了该大语言模型支持比赛中的所有语种。
+
+All models in our experiments are fine-tuned from Llama3-Instruct-8B, selected for its strong multilingual capabilities and acceptable computational cost. To validate its multilingual capabilities in each language, we check the consistency between original and recovered text using its tokenizer to encode and decode the text content. This experiment confirmed that the model supports all competition languages.
+
+% 我们先在标准预测任务上尝试了单英语和多语种的效果以确认多语种对单语言的影响（Section4.1）。 然后我们在英语数据集上分别尝试了CRC，DPO，SimPO等技术，以探索sample-based comparison和generation-based comparison方案对于情感预测任务的收益。CRC模型由ST数据集+CRC数据集通过SFT训练得到。DPO和SimPO模型则是通过对单英语的ST模型进行相应的preference tuning得到。
+
+We first evaluated the impact of multilingual data on English-only performance in the standard prediction (SP) task (Section 4.1). Then, we experimented with CRC, DPO, and SimPO on the English dataset to examine the effectiveness of sample-based comparison and generation-based comparison for TBED. 
+%The CRC model is trained via SFT on a combination of ST and CRC datasets. 
+DPO and SimPO models are obtained by applying preference tuning to the English-only SP model.
+
+% 我们的所有训练均采用LoRA的方式以节省训练成本。LoRA rank为8，loRA alpha为16，LoRA dropout 为0. 每个任务训练的Epoch 数为3，batch size为128. ST与CRC任务的学习率为4e-4. DPO训练的学习率5e-6，SimPO训练的学习率为1e-6。LR scheduler采用cosine策略，warmup ratio为0.1，batch size为128. 在CRC推理时，Track A的N为3，Track B的N为7。
+
+To reduce training costs, we used LoRA for all fine-tuning tasks, with its rank and alpha set as 8 and 16. Each training lasted for 3 epochs with a batch size of 128. Regarding the learning rate (LR), ST and CRC employ 4e-4, DPO adopts 5e-6, and SimPO uses 1e-6. All models are trained using the AdamW optimizer, with $\beta_1=0.8, \beta_2=0.99$. All LR scheduler employs cosine decay with a warmup ratio of 0.1. For CRC inference, we set $N=3$ for Track A and $N=7$ for Track B.
+
+\section{Results}
+
+% 表一和表二展示了所有模型在英语测试集上的效果。表一对应track A 多情感标签分类任务，表二对应track B情感程度预测任务。
+
+Tables~\ref{tab:tracka_result} and Table~\ref{tab:trackb_result} present the performance of all models on the English test set. Table 1 corresponds to Track A, the multi-emotion classification task, while Table 2 corresponds to Track B, the emotion intensity prediction task.
+
+\subsection{Multilingual influence}
+
+%不论是track A还是 track B，多语种训练效果都低于单英语训练。这证明了情感的感知在不同语言不同文化背景下存在明显的差异，且这种差异会导致模型对标签的理解存在冲突。关于track a与track b 全语种的 multilingual SP 结果请参见Appendix 5
+
+We observe that multilingual training underperforms compared to English-only training in both Track A and Track B. This finding highlights the significant differences in emotion perception across languages and cultural contexts, which can introduce conflicts in the model’s understanding of sentiment labels. Therefore, we submit the non-English results generated by the multilingual SP model to the leaderboard and discard the multilingual setting in subsequent comparison experiments. For the multilingual SP results of track a and track b in all languages, please see Appendix~\ref{sec:app_SP_Multilingual}.
+
+\subsection{Sample-based vs generation-based contrastive learning}
+
+% Table 2 展示了在单英语场景下各个技术方案的最终效果。在track A上，标准预测表现最好。具体到每个标签上，标准预测模型在fear和joy上有超过了其他方案。而在sadness和surprise上，DPO模型效果则以微弱优势取得了第一。在Anger的标签上, CRC模型rank the first。但是在track B上，DPO取得了除Anger标签以外所有评估上的第一名。SimPO效果在所有赛道所有标签上均不达预期。为了进一步分析上述结果背后的原因，我们分析了不同技术的bad case。
+
+In Track A, the SP model performed the best overall. Specifically, it outperformed other approaches on the fear label, while the DPO model achieved a slight advantage on surprise. For anger, the CRC model ranked first, whereas SimPO achieved the best performance on joy and sadness. However, in Track B, DPO secured the top position across all evaluation metrics except for anger and joy. Meanwhile, SimPO lagged significantly behind other systems in both macro and micro performance metrics. To further investigate the underlying reasons for these results, we conducted the bad case analysis for different techniques.
+
+% 在CRC模型上，我们着重分析了track A Anger标签的bad case。我们发现绝大多数错误来自于模型错误判断情感状态为无，占到错误总数的70%。我们随机采样了5条样本并展示在了table3中。可以看到这类样本本身就落在Anger标签定义的boardline上。将其同其他样本进行比对会非常容易导致标签预测反转，进而加大预测的不准确性。这暗示了该数据集先天与sample based comparison 不适配。
+
+\begin{table*}[]
+\centering
+\caption{Bad cases of the CRC model on the Anger label of Track A}
+\label{tab:CRC_badcases}
+\begin{tabular}{l|lcc}
+\hline
+\textbf{ID}                & \multicolumn{1}{c}{\textbf{Text}}           & \textbf{Pred} & \textbf{True} \\ \hline
+eng\_test\_track\_a\_02136 &
+  \begin{tabular}[c]{@{}l@{}}It was growing harder for him to keep balanced with my \\ legs shifting every few seconds, until finally, I found the \\ right position and his back a good shove with my knee.\end{tabular} &
+  0 &
+  1 \\
+eng\_test\_track\_a\_01815 & So you let it shatter, breaking at my feet. & 1             & 0             \\
+eng\_test\_track\_a\_01594 & Dad thought it was just my imagination.     & 0             & 1             \\
+eng\_test\_track\_a\_00071 &
+  \begin{tabular}[c]{@{}l@{}}There's just something about watching an acne-ridden \\ high school dropout cooking my food that just doesn't \\ sit well in my stomach.\end{tabular} &
+  0 &
+  1 \\ \hline
+\end{tabular}
+\end{table*}
+
+For the CRC model, we analyze track A anger label's bad case. We found that most misclassifications—accounting for 70\% of the errors—were due to the model incorrectly predicting a neutral emotional state. Table\ref{tab:CRC_badcases} presents five randomly sampled bad cases, illustrating that these instances are on the borderline of the anger definition. Comparing them with other samples can easily influence their predictions, causing uncertainty and error. This suggests that the dataset may not be well-suited for sample-based comparison approach.
+
+% 在DPO模型上，我们着重分析了track B Sadness标签的bad case。 我们发现所有错误同ground truth仅有程度为1的差异。这意味着模型对于标签intensity的感知的敏感性依然存在提升的空间。
+For the DPO model, we analyzed sadness misclassifications in Track B. We observed that over 90\% of the errors differed from the ground truth by only one intensity level. This indicates that the model still has room for improvement in its recognition of label intensity.
+
+% 针对SimPO模型，我们发现其效果差的核心原因在于丢失了输出格式，从而导致大量的内容解析错误。该现象揭示了reference 模型对于TBED任务的重要性。尽管其拉大了正确输出与错误输出的概率margin，但其也会导致原先的正确输出不再是概率第一的输出。
+Regarding the SimPO model, we found that its poor performance primarily stemmed from the loss of output formatting, leading to frequent content parsing errors. This highlights the critical role of the reference model in preference tuning. While SimPO effectively increases the probability margin between correct and incorrect outputs, it may also make correct outputs no longer rank as the top predictions.
+
+\section{Conclusion}
 
 \section{Engines}
 
@@ -478,9 +615,115 @@ Additional elements were taken from the formatting instructions of the \emph{Int
 
 \appendix
 
+\iffalse
 \section{Example Appendix}
 \label{sec:appendix}
 
 This is an appendix.
+
+\fi
+
+\section{Appendix}
+\subsection{Prompt Templates}
+\label{sec:app_PT}
+
+Table~\ref{tab:SP_tracka_temp}, \ref{tab:SP_trackb_temp}, \ref{tab:CRC_tracka_temp}, and \ref{tab:CRC_trackb_temp} show the prompt templates used by Standard Prediction and Contrastive Reasoning Calibration on track a and b, respectively. Preference Tuning also uses the Standard Prediction template.
+
+\begin{table*}[]
+\caption{Standard prediction template for track a}
+\label{tab:SP_tracka_temp}
+\begin{tabular}{l|l}
+\hline
+\textbf{Input} &
+  \textbf{Output} \\ \hline
+\begin{tabular}[c]{@{}l@{}}Task Description: \\ You are tasked with determining the perceived emotion(s) of a speaker \\ based on a conversation. Specifically, your goal is to predict the emotions \\ that most people would associate with the speaker's last utterance. The \\ possible emotions are: joy, sadness, fear, anger, surprise, and disgust. The \\ conversation may be in any of the following languages: Afrikaans, \\ Algerian Arabic, Amharic, Emakhuwa, Hausa, Igbo, Kinyarwanda, \\ Moroccan Arabic, Mozambican Portuguese, Nigerian-Pidgin, Oromo, \\ Setswana, Somali, Swahili, Sundanese, Tigrinya, Xitsonga, IsiXhosa, \\ Yoruba, isiZulu Arabic, Chinese, Hindi, Indonesian, Javanese, Marathi \\ English, German, Romanian, Russian, Latin American Spanish, Tatar, \\ Ukrainian, Swedish, Mozambican Portuguese, and Brazilian Portuguese. \\ \\ Instructions: \\ 1. The language of the conversation will be explicitly indicated at the \\ first place. \\ 2. Each turn in the conversation will be marked with "Speaker1" or \\ "Speaker2" to indicate the speaker. \\ 3. You need to predict the emotions based on the last utterance from \\ "Speaker1" (and any additional context or dialogue history if provided). \\ 4. For each emotion, indicate whether it applies using binary labels: 1 \\ (emotion is present) or 0 (emotion is absent). \\ \\ Example Output Format: \\ joy: \{\{ 1 or 0 \}\}, sadness: \{\{ 1 or 0 \}\}, fear: \{\{ 1 or 0 \}\}, anger: \{\{ 1 or \\ 0 \}\}, (optional) surprise: \{\{ 1 or 0 \}\}, (optional) disgust: \{\{ 1 or 0 \}\}. \\ \\ Language: \\ \{lan\}\\ \\ Content: \\ Speaker1: \{text\}\end{tabular} &
+  \begin{tabular}[c]{@{}l@{}}joy: \{joy\}, \\ sadness: \{sadness\}, \\ fear: \{fear\}, \\ anger: \{anger\}, \\ surprise: \{surprise\}, \\ disgust: \{disgust\}.\end{tabular} \\ \hline
+\end{tabular}
+\end{table*}
+
+\begin{table*}[]
+\caption{Standard prediction template for track b}
+\label{tab:SP_trackb_temp}
+\begin{tabular}{l|l}
+\hline
+\textbf{Input} &
+  \textbf{Output} \\ \hline
+\begin{tabular}[c]{@{}l@{}}Task Description: \\ You are tasked with predicting the intensity for each of the perceived \\ emotion classes of a speaker based on a conversation. Specifically, your \\ prediction should represent the emotional intensity most people \\ associate with the speaker's last utterance. The possible emotion classes \\ are: joy, sadness, fear, anger, surprise, and disgust. The conversation may \\ be in any of the following languages: Afrikaans, Algerian Arabic, \\ Amharic, Emakhuwa, Hausa, Igbo, Kinyarwanda, Moroccan Arabic, \\ Mozambican Portuguese, Nigerian-Pidgin, Oromo, Setswana, Somali, \\ Swahili, Sundanese, Tigrinya, Xitsonga, IsiXhosa, Yoruba, isiZulu Arabic, \\ Chinese, Hindi, Indonesian, Javanese, Marathi English, German, \\ Romanian, Russian, Latin American Spanish, Tatar, Ukrainian, Swedish, \\ Mozambican Portuguese, and Brazilian Portuguese. \\ \\ Instructions: \\ 1. The language of the conversation will be explicitly indicated at the first \\ place. \\ 2. Each turn in the conversation will be marked with "Speaker1" or \\ "Speaker2" to indicate the speaker. \\ 3. You need to predict the emotion intensity based on the last utterance \\ from "Speaker1" (and any additional context or dialogue history if \\ provided). \\ 4. For each emotion class, the ordinal intensity levels include: 0 for no \\ emotion, 1 for a low degree of emotion, 2 for a moderate degree of \\ emotion, and 3 for a high degree of emotion. \\ \\ Example Output Format: \\ joy: \{\{ 0, 1, 2, or 3 \}\}, sadness: \{\{ 0, 1, 2, or 3 \}\}, fear: \{\{ 0, 1, 2, or 3 \}\}, \\ anger: \{\{ 0, 1, 2, or 3 \}\}, (optional) surprise: \{\{ 0, 1, 2, or 3 \}\}, (optional) \\ disgust: \{\{ 0, 1, 2, or 3 \}\}. \\ \\ Language: \\ \{lan\}\\ \\ Content: \\ Speaker1: \{text\}\end{tabular} &
+  \begin{tabular}[c]{@{}l@{}}joy: \{joy\}, \\ sadness: \{sadness\}, \\ fear: \{fear\}, \\ anger: \{anger\}, \\ surprise: \{surprise\}, \\ disgust: \{disgust\}.\end{tabular} \\ \hline
+\end{tabular}
+\end{table*}
+
+\begin{table*}[]
+\centering
+\caption{Contrastive reasoning calibration prompt template for track a}
+\label{tab:CRC_tracka_temp}
+\begin{tabular}{l|l}
+\hline
+\textbf{Input} &
+  \textbf{Output} \\ \hline
+\begin{tabular}[c]{@{}l@{}}Task Description: \\ Your task is to compare and predict the perceived emotional label \\ exhibited by the speaker in two separate conversations. The target \\ emotion for comparison is "\{label\}". The conversation may be in \\ any of the following languages: Afrikaans, Algerian Arabic, \\ Amharic, Emakhuwa, Hausa, Igbo, Kinyarwanda, Moroccan \\ Arabic, Mozambican Portuguese, Nigerian-Pidgin, Oromo, \\ Setswana, Somali, Swahili, Sundanese, Tigrinya, Xitsonga, IsiXhosa, \\ Yoruba, isiZulu Arabic, Chinese, Hindi, Indonesian, Javanese, \\ Marathi English, German, Romanian, Russian, Latin American \\ Spanish, Tatar, Ukrainian, Swedish, Mozambican Portuguese, and \\ Brazilian Portuguese. \\ \\ Instructions: \\ 1. The two conversations will be marked as "Conversation1" and \\ "Conversation2". Each turn in the conversation will be marked \\ as "Speaker1" or "Speaker2" to indicate the speaker. \\ 2. The language of the conversation will be explicitly stated at the \\ beginning of each conversation. \\ 3. You only need to predict the emotions of "Speaker1" in both \\ conversations. No predictions are required for "Speaker2". \\ 4. Your comparison and prediction should be based on the last \\ utterance of "Speaker1" in each conversation, while also \\ considering any additional background or dialogue history if \\ provided. \\ 5. First, provide a brief summary of the comparison result \\ between the two conversations. Then, use binary labels to indicate \\ whether the specified emotion ("\{label\}") is present in each \\ conversation: 1 (emotion is present) or 0 (emotion is absent). \\ \\ Example Output Format: \\ For emotion label "\{label\}", \{\{Brief summary of the comparison \\ result\}\}. Conversation1: \{\{1 or 0\}\}, Conversation2: \{\{1 or 0\}\}. \\ \\ Conversation1: \\ Language: \{lan1\}\\ Speaker1: \{text1\}\\ \\ Conversation2: \\ Language: \{lan2\}\\ Speaker1: \{text2\}\\ \\ \\ For emotion label "\{label\}", \{brief\}. \\ Conversation1: \{conv1Value\}, Conversation2: \{conv2Value\}.\end{tabular} &
+  \begin{tabular}[c]{@{}l@{}}For emotion label "\{label\}", \\ \{\{Brief summary of the \\ comparison result\}\}. \\ Conversation1: \{\{1 or 0\}\}, \\ Conversation2: \{\{1 or 0\}\}.\end{tabular} \\ \hline
+\end{tabular}
+\end{table*}
+
+\begin{table*}[]
+\caption{Contrastive reasoning calibration prompt template for track b}
+\label{tab:CRC_trackb_temp}
+\begin{tabular}{l|l}
+\hline
+\textbf{Input} &
+  \textbf{Output} \\ \hline
+\begin{tabular}[c]{@{}l@{}}Task Description: \\ Your task is to compare and predict the intensity of the specific \\ perceived emotion class in two separate conversations. The target \\ preceived emotion class for comparison is "\{label\}". The \\ conversation may be in any of the following languages: Afrikaans, \\ Algerian Arabic, Amharic, Emakhuwa, Hausa, Igbo, Kinyarwanda, \\ Moroccan Arabic, Mozambican Portuguese, Nigerian-Pidgin, \\ Oromo, Setswana, Somali, Swahili, Sundanese, Tigrinya, Xitsonga, \\ IsiXhosa, Yoruba, isiZulu Arabic, Chinese, Hindi, Indonesian, \\ Javanese, Marathi English, German, Romanian, Russian, Latin \\ American Spanish, Tatar, Ukrainian, Swedish, Mozambican \\ Portuguese, and Brazilian Portuguese. \\ \\ Instructions: \\ 1. The two conversations will be marked as "Conversation1" and \\ "Conversation2". Each turn in the conversation will be marked as \\ "Speaker1" or "Speaker2" to indicate the speaker. \\ 2. The language of the conversation will be explicitly stated at the \\ beginning of each conversation. \\ 3. You only need to predict the emotional intensity of "Speaker1" \\ in both conversations. No predictions are required for "Speaker2". \\ 4. Your comparison and prediction should be based on the last \\ utterance of "Speaker1" in each conversation, while also considering \\ any additional background or dialogue history if provided. \\ 5. First, provide a brief summary of the comparison result between \\ the two conversations. Then, use one of the four levels to indicate \\ the target ordinal intensity:  0 for no emotion, 1 for a low degree of \\ emotion, 2 for a moderate degree of emotion, and 3 for a high degree \\ of emotion. \\ \\ Example Output Format: \\ For emotion label "\{label\}", \{\{Brief summary of the comparison result\}\}. \\ Conversation1: \{\{ 0, 1, 2, or 3 \}\}, Conversation2: \{\{ 0, 1, 2, or 3 \}\}. \\ \\ Conversation1: \\ Language: \{lan1\}\\ Speaker1: \{text1\}\\ \\ Conversation2: \\ Language: \{lan2\}\\ Speaker1: \{text2\}\\ \\ \\ For emotion label "\{label\}", \{brief\}. \\ Conversation1: \{conv1Value\}, Conversation2: \{conv2Value\}.\end{tabular} &
+  \begin{tabular}[c]{@{}l@{}}For emotion label "\{label\}", \\ \{\{Brief summary of the \\ comparison result\}\}. \\ Conversation1: \{\{1 or 0\}\}, \\ Conversation2: \{\{1 or 0\}\}.\end{tabular} \\ \hline
+\end{tabular}
+\end{table*}
+
+\subsection{Test Results of SP multilingual Model on all languages}
+\label{sec:app_SP_Multilingual}
+
+Table~\ref{tab:SP_Multilingual} shows the performance of the multilingual model on all languages, including track a and b.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+% \usepackage[table,xcdraw]{xcolor}
+% Beamer presentation requires \usepackage{colortbl} instead of \usepackage[table,xcdraw]{xcolor}
+\begin{table}[]
+\caption{SP multilingual model results on all tracks and languages}
+\label{tab:SP_Multilingual}
+\begin{tabular}{ccccc}
+\hline
+                                    & \multicolumn{2}{c}{\textbf{Track A}}                        & \multicolumn{2}{c}{\textbf{Track B}}                        \\
+\multirow{-2}{*}{\textbf{Language}} & \textbf{Macro}               & \textbf{Micro}               & \textbf{Macro}               & \textbf{Micro}               \\ \hline
+eng                                 & {\color[HTML]{212121} 0.820} & {\color[HTML]{212121} 0.802} & {\color[HTML]{212121} 0.835} & {\color[HTML]{212121} 0.815} \\
+{\color[HTML]{212121} ptbr} & {\color[HTML]{212121} 0.722} & {\color[HTML]{212121} 0.607} & {\color[HTML]{212121} 0.758} & {\color[HTML]{212121} 0.638} \\
+{\color[HTML]{212121} ary}          & {\color[HTML]{212121} 0.591} & {\color[HTML]{212121} 0.553} & {\color[HTML]{212121} -}     & {\color[HTML]{212121} -}     \\
+{\color[HTML]{212121} afr}          & {\color[HTML]{212121} 0.669} & {\color[HTML]{212121} 0.580} & {\color[HTML]{212121} -}     & {\color[HTML]{212121} -}     \\
+{\color[HTML]{212121} ptmz}         & {\color[HTML]{212121} 0.581} & {\color[HTML]{212121} 0.523} & {\color[HTML]{212121} -}     & {\color[HTML]{212121} -}     \\
+{\color[HTML]{212121} kin}          & {\color[HTML]{212121} 0.520} & {\color[HTML]{212121} 0.475} & -                            & -                            \\
+{\color[HTML]{212121} pcm}          & {\color[HTML]{212121} 0.693} & {\color[HTML]{212121} 0.632} & -                            & -                            \\
+{\color[HTML]{212121} amh}          & {\color[HTML]{212121} 0.778} & {\color[HTML]{212121} 0.766} & {\color[HTML]{212121} 0.764} & {\color[HTML]{212121} 0.726} \\
+{\color[HTML]{212121} tat}          & {\color[HTML]{212121} 0.767} & {\color[HTML]{212121} 0.767} & -                            & -                            \\
+{\color[HTML]{212121} chn}          & {\color[HTML]{212121} 0.756} & {\color[HTML]{212121} 0.664} & {\color[HTML]{212121} 0.781} & {\color[HTML]{212121} 0.661} \\
+{\color[HTML]{212121} ukr}          & {\color[HTML]{212121} 0.690} & {\color[HTML]{212121} 0.652} & {\color[HTML]{212121} 0.671} & {\color[HTML]{212121} 0.633} \\
+{\color[HTML]{212121} vmw}          & {\color[HTML]{212121} 0.234} & {\color[HTML]{212121} 0.188} & -                            & -                            \\
+{\color[HTML]{212121} yor}          & {\color[HTML]{212121} 0.511} & {\color[HTML]{212121} 0.353} & -                            & -                            \\
+{\color[HTML]{212121} orm}          & {\color[HTML]{212121} 0.626} & {\color[HTML]{212121} 0.522} & -                            & -                            \\
+{\color[HTML]{212121} rus}          & {\color[HTML]{212121} 0.887} & {\color[HTML]{212121} 0.887} & {\color[HTML]{212121} 0.902} & {\color[HTML]{212121} 0.900} \\
+{\color[HTML]{212121} sun}          & {\color[HTML]{212121} 0.708} & {\color[HTML]{212121} 0.457} & -                            & -                            \\
+{\color[HTML]{212121} arq}          & {\color[HTML]{212121} 0.594} & {\color[HTML]{212121} 0.561} & {\color[HTML]{212121} 0.525} & {\color[HTML]{212121} 0.481} \\
+{\color[HTML]{212121} deu}          & {\color[HTML]{212121} 0.755} & {\color[HTML]{212121} 0.714} & {\color[HTML]{212121} 0.761} & {\color[HTML]{212121} 0.721} \\
+{\color[HTML]{212121} esp}          & {\color[HTML]{212121} 0.819} & {\color[HTML]{212121} 0.823} & {\color[HTML]{212121} 0.769} & {\color[HTML]{212121} 0.773} \\
+{\color[HTML]{212121} mar}          & {\color[HTML]{212121} 0.862} & {\color[HTML]{212121} 0.868} & -                            & -                            \\
+{\color[HTML]{212121} hau}          & {\color[HTML]{212121} 0.680} & {\color[HTML]{212121} 0.670} & {\color[HTML]{212121} 0.719} & {\color[HTML]{212121} 0.692} \\
+{\color[HTML]{212121} swa}          & {\color[HTML]{212121} 0.368} & {\color[HTML]{212121} 0.313} & -                            & -                            \\
+{\color[HTML]{212121} swe}          & {\color[HTML]{212121} 0.762} & {\color[HTML]{212121} 0.591} & -                            & -                            \\
+{\color[HTML]{212121} som}          & {\color[HTML]{212121} 0.469} & {\color[HTML]{212121} 0.437} & -                            & -                            \\
+{\color[HTML]{212121} tir}          & {\color[HTML]{212121} 0.565} & {\color[HTML]{212121} 0.474} & -                            & -                            \\
+{\color[HTML]{212121} ron}          & {\color[HTML]{212121} 0.770} & {\color[HTML]{212121} 0.765} & {\color[HTML]{212121} 0.778} & {\color[HTML]{212121} 0.682} \\
+{\color[HTML]{212121} ibo}          & {\color[HTML]{212121} 0.634} & {\color[HTML]{212121} 0.576} & -                            & -                            \\
+{\color[HTML]{212121} hin}          & {\color[HTML]{212121} 0.896} & {\color[HTML]{212121} 0.896} & -                            & -                            \\ \hline
+\end{tabular}
+\end{table}
+
 
 \end{document}
