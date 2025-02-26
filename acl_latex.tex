@@ -55,7 +55,7 @@
   \textsuperscript{1}School of Computing, Newcastle University, Newcastle upon Tyne, UK\\
   \textsuperscript{2}Shumei AI Research Institute, Beijing, China
 \\
-  \texttt{t.li56@newcastle.ac.uk},\texttt{sunyujian@ishumei.com},\\\texttt{huizhi.liang@newcastle.ac.uk}
+  \texttt{t.li56@newcastle.ac.uk}, \texttt{sunyujian@ishumei.com},\\\texttt{huizhi.liang@newcastle.ac.uk}
 }
 
 % Author information can be set in various styles:
@@ -176,7 +176,7 @@ To address both tracks while supporting emotion prediction across 28 languages, 
 
 % 由于情感表达的复杂性和情感标签的不确定性，我们决定采用两套备选方案：基于样本的对比方案和基于生成结果的对比方案。基于样本的对比方案采用CRC技术。其原理是通过样本比较的方式，让模型生成多条更加可靠的的预测并进行投票表决。基于生成结果的对比方案采用偏好优化技术，通过增加正确输出的对数概率并减少错误输出的对数概率，优化模型对于标签的理解能力。受限于计算资源限制，我们探索了DPO与Orpo这两个无需reward model的方案。
 
-In this paper, we explore two alternative approaches - sample-based contrastive learning and generation-based contrastive learning - to address the complexity of emotional expression and the ambiguity of sentiment labels. The sample-based approach leverages Contrastive Reasoning Calibration technology (CRC) \cite{li2024chinchunmei}, which enhances prediction reliability by generating multiple predictions through sample comparisons and aggregating them via majority voting. The generation-based approaches employ preference optimization techniques \cite{rafailov2023direct, hong2024orpo, meng2025simpo}, refining the model’s comprehension of sentiment labels by increasing the log probability of correct outputs while reducing that of incorrect ones. Given computational constraints, we only explore DPO \cite{rafailov2023direct} and SimPO\cite{meng2025simpo}, two widely acknowledged methods that do not require the reward model.
+In this paper, we explore two alternative types of approaches - sample-based contrastive learning and generation-based contrastive learning - to address the complexity of emotional expression and the ambiguity of sentiment labels. The sample-based approach leverages Contrastive Reasoning Calibration technology (CRC) \cite{li2024chinchunmei}, which enhances prediction reliability by generating multiple predictions through sample comparisons and aggregating them via majority voting. The generation-based approaches employ preference optimization techniques \cite{rafailov2023direct, hong2024orpo, meng2025simpo}, refining the model’s comprehension of sentiment labels by increasing the log probability of correct outputs while reducing that of incorrect ones. Given computational constraints, we only explore DPO \cite{rafailov2023direct} and SimPO\cite{meng2025simpo}, two widely acknowledged methods that do not require the reward model.
 
 % 我们的核心贡献如下
 
@@ -188,7 +188,7 @@ Our key contributions are as follows:
 
 \begin{itemize}
 	\item We explored the impact of non-English data on English sentiment prediction under limited computational resources. Surprisingly, experimental results indicate that incorporating non-English data degrades performance in both classification tasks (Track A) and scoring tasks (Track B).
-	\item We conducted an comprehensive evaluation and bad case analysis of two contrastive approaches on the competition dataset. In the sample-based contrastive category, CRC technology yielded limited benefit. In the generation-based contrastive category, DPO demonstrated a significant positive effect on Track B. Although SimPO has achieved gains on some labels, the overall effect has dropped significantly. 
+	\item We conducted an comprehensive evaluation and bad case analysis of two contrastive approaches on the competition dataset. In the sample-based contrastive Learning, CRC technology yielded limited benefit. In the generation-based contrastive Learning, DPO demonstrated a significant positive effect on Track B. Although SimPO has achieved gains on some labels, the overall effect has dropped significantly. 
 	\item In the leaderboard, our approach achieved Track A top 10 in 16 languages and 12th in English; Track B top 10 across all languages and 7th in English.
 \end{itemize}
 
@@ -236,7 +236,7 @@ Given that random pairwise sampling can generate a vast amount of training data,
 
 During inference, each test sample is paired with a randomly selected training sample to form a contrastive input. Since the model achieves highly accurate predictions on training samples, these trained samples serve as reliable reference points, reducing prediction uncertainty. The two samples are integrated into the CRC prompt template, with the test sample randomly assigned to either position 1 or position 2. This process is repeated $N$ times to generate $N$ different input instances, producing $N$ predictions. The final score is determined through a voting mechanism, where the most frequently predicted score is selected as the final output.
 
-\subsection{Generation-based contrastive approaches}
+\subsection{Generation-based contrastive learning}
 
 % 为了强化模型对于打分的敏感性，我们还引入了perference optimiztion。 但是，受限于计算资源，我们仅试验了无需reward model的技术方案。其中包括DPO， SimPO， 以及Orpo
 
