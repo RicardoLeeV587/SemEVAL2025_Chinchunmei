@@ -172,7 +172,7 @@ To participate in both tracks and support all languages predictions, we adopt th
   \centering
   \includegraphics[width=430pt]{Overall}
   \vspace{-5pt}
-  \caption{The 3 types of technical solutions we adopted in this competition. On the left is the Standard Prediction training. The middle is the sample-based contrastive training, where Samples 1, 2, 3, and 4 are randomly drawn from the training dataset. On the right is the generation-based contrastive training, where incorrect generations are derived through label mutation.}
+  \caption{The 3 types of technical solutions we adopted in this competition. On the left is the Standard Prediction training. The middle is the sample-based contrastive training, where Samples 1, 2, 3, and 4 are randomly drawn from the training datasets. On the right is the generation-based contrastive training, where incorrect generations are derived through label mutation.}
   \label{fig:Overall}
  \vspace{-15pt}
 \end{figure*}
@@ -233,7 +233,7 @@ During sample preparation, we randomly select two samples from the training set 
 
 % 由于两两随机采样能生成巨量的训练样本，因此我们为track a和track b分别设置了一个样本总数上线。对于track a，每个标签采样3000条对比样本。对于track b，每个标签采样6000条对比样本。这是因为相比于track a ，track b的预测打分多于track a。
 
-Given that random pairwise sampling can generate a vast amount of training data, we imposed an upper limit on the total number of sampled pairs for each track. Specifically, for Track A, we sampled 3,000 contrastive pairs per label, while for Track B, we sampled 6,000 pairs per label, as Track B involves more fine-grained scoring labels compared to Track A.
+Given that random pairwise sampling can generate a vast amount of training data, we impose an upper limit on the total number of sampled pairs for each track. Specifically, for Track A, we sample 3,000 contrastive pairs per label, while for Track B, we sample 6,000 pairs per label, as Track B involves more fine-grained scoring labels compared to Track A.
 
 % 在推理时，每条待预测的样本将同随机抽取的训练样本构建对比组。由于模型对于训练样本预测极为准确，因此我们希望其可作为预测的对比量纲，从而削减预测的不确定性。两条样本被整合到Appendix 2 所示的模版中作为输入，待预测的样本将会被随机放置在位置1或位置2.重复上述过程N次获得N条输入，并由模型生成N条预测结果。最终通过投票机制，将得票最高的打分作为最终输出。
 
@@ -275,9 +275,9 @@ ORPO integrates the contrastive approach directly into the SFT phase (EQ3). By a
 
 % 在训练样本准备时，为了强化模型对标签打分的敏感程度， 我们仅mute了标签打分。Chosen sample 为原ST的ground truth， Rejected sample为同样的SP模版但是使用了muted过后的分数Mute 一个，两个，三个，四个，五个标签的概率为[63.8%, 26.1%, 8.3%, 1.6%, 0.1%]。当mutation触发时，随机从标签剩余取值中取一个作为错误打分。
  
- During sample preparation, to enhance the model's sensitivity to label scoring, we muted only the label scores to generate $y_l$ (Figure~\ref{fig:Overall} right, the Label Mutation block). The $y_w$ corresponds to the original SP ground truth, while the $y_l$ follows the same SP template but with muted scores. The probabilities of muting one, two, three, four, and five labels are [63.8\%, 26.1\%, 8.3\%, 1.6\%, 0.1\%], respectively. When mutation is triggered, a random value is selected from the remaining label values as the incorrect score.
+ During sample preparation, to enhance the model's sensitivity to label scoring, we mute only the label scores to generate $y_l$ (Figure~\ref{fig:Overall} right, the Label Mutation block). The $y_w$ corresponds to the original SP ground truth, while the $y_l$ follows the same SP template but with muted scores. The probabilities of muting one, two, three, four, and five labels are [63.8\%, 26.1\%, 8.3\%, 1.6\%, 0.1\%], respectively. When mutation is triggered, a random value is selected from the remaining label values as the incorrect score.
  
- For Track A, each training sample executes five mutations, generating five contrastive samples for generation-based learning. For Track B, mutation is repeated 15 times, creating 15 contrastive samples. These settings ensured that the preference optimization dataset was comparable in size to the CRC dataset, allowing for a fair comparison between sample-based and generation-based approaches.
+ For Track A, each training sample executes five mutations, generating five contrastive samples for generation-based contrastive learning. For Track B, mutation is repeated 15 times, creating 15 contrastive samples. These settings ensured that the preference optimization dataset was comparable in size to the CRC dataset, allowing for a fair comparison between sample-based and generation-based approaches.
 
 \section{Experiment}
 
@@ -347,7 +347,7 @@ In this competition, we participate in Track A and Track B. Track A covers 28 la
 
 % 我们所有任务模型均由Llama3-instruct-8B微调而来。这是因为其优异的多语种支持与可接受的计算资源开销。我们利用其tokenizer进行了encoder-decoder流程，通过检查恢复出来的文本与原始文本的一致性来筛选其支持的语种。经过实验，我们确认了该大语言模型支持比赛中的所有语种。
 
-All models in our experiments are fine-tuned from Llama3-Instruct-8B  \cite{dubey2024llama}, selected for its strong multilingual capabilities and acceptable computational cost. To validate its multilingual capabilities in each language, we check the consistency between original and recovered text using its tokenizer to encode and decode the text content. This experiment confirmed that the model supports all competition languages.
+All models in our experiments are fine-tuned from Llama3-Instruct-8B \cite{dubey2024llama}, selected for its strong multilingual capabilities and acceptable computational cost. To validate its multilingual capabilities in each language, we check the consistency between original and recovered text using its tokenizer to encode and decode the text content. This experiment confirmed that the model supports all competition languages.
 
 % 我们先在标准预测任务上尝试了单英语和多语种的效果以确认多语种对单语言的影响（Section4.1）。 然后我们在英语数据集上分别尝试了CRC，DPO，SimPO等技术，以探索sample-based comparison和generation-based comparison方案对于情感预测任务的收益。CRC模型由ST数据集+CRC数据集通过SFT训练得到。DPO和SimPO模型则是通过对单英语的ST模型进行相应的preference tuning得到。
 
@@ -357,7 +357,7 @@ We first evaluate the impact of multilingual data on English-only performance in
 
 To reduce training costs, we use LoRA \cite{hu2022lora} for all fine-tuning tasks, with its rank and alpha set as 8 and 16. Each training lasts for 3 epochs with a batch size of 128. Regarding the learning rate (LR), SP and CRC employ 4e-4, DPO adopts 5e-6, and SimPO uses 1e-6. All models are trained using the AdamW optimizer, with $\beta_1=0.8, \beta_2=0.99$. All LR scheduler employs cosine decay with a warmup ratio of 0.1. For CRC inference, we set $N=3$ for Track A and $N=7$ for Track B.
 
-All experiments were conducted using 8-GPU distributed training. Due to limited computational resources, different GPUs were used across various training runs. However, all GPUs were based on the Ada Lovelace or Hopper architecture, allowing us to leverage a wide range of existing acceleration techniques to enhance training efficiency.
+All experiments are conducted using 8-GPU distributed training. Due to limited computational resources, different GPUs are used across various training runs. However, all GPUs are based on the Ada Lovelace or Hopper architecture, allowing us to leverage a wide range of existing acceleration techniques to enhance training efficiency.
 
 \begin{table*}[]
 \centering
@@ -385,7 +385,7 @@ eng\_test\_track\_a\_00071 &
 
 % 表一和表二展示了所有模型在英语测试集上的效果。表一对应track A 多情感标签分类任务，表二对应track B情感程度预测任务。
 
-Tables~\ref{tab:tracka_result} and \ref{tab:trackb_result} present the performance of all models on the English test set. Table 1 corresponds to Track A, the multi-emotion classification task, while Table 2 corresponds to Track B, the emotion intensity prediction task.
+Tables~\ref{tab:tracka_result} and \ref{tab:trackb_result} present the performance of all models on the English test set. Table~\ref{tab:tracka_result} corresponds to Track A, the multi-emotion classification task, while table\ref{tab:trackb_result} corresponds to Track B, the emotion intensity prediction task.
 
 \subsection{Multilingual influence}
 
@@ -397,14 +397,14 @@ We observe that multilingual training underperforms compared to English-only tra
 
 % Table 2 展示了在单英语场景下各个技术方案的最终效果。在track A上，标准预测表现最好。具体到每个标签上，标准预测模型在fear和joy上有超过了其他方案。而在sadness和surprise上，DPO模型效果则以微弱优势取得了第一。在Anger的标签上, CRC模型rank the first。但是在track B上，DPO取得了除Anger标签以外所有评估上的第一名。SimPO效果在所有赛道所有标签上均不达预期。为了进一步分析上述结果背后的原因，我们分析了不同技术的bad case。
 
-In Track A, the SP model performed the best overall. Specifically, it outperformed other approaches on the fear label, while the DPO model achieved a slight advantage on surprise. For anger, the CRC model ranked first, whereas SimPO achieved the best performance on joy and sadness. However, in Track B, DPO secured the top position across all evaluation metrics except for anger and joy. Meanwhile, SimPO lagged significantly behind other systems in both macro and micro performance metrics. To further investigate the underlying reasons for these results, we conducted the bad case analysis for different techniques.
+In Track A, the SP model performed the best overall. Specifically, it outperformed other approaches on the fear label, while the DPO model achieved a slight advantage on surprise. For anger, the CRC model ranked first, whereas SimPO achieved the best performance on joy and sadness. However, in Track B, DPO secures the top position across all evaluation metrics except for anger and joy. Meanwhile, SimPO lags significantly behind other systems in both macro and micro performance metrics. To further investigate the underlying reasons for these results, we conduct the bad case analysis for different techniques.
 
 % 在CRC模型上，我们着重分析了track A Anger标签的bad case。我们发现绝大多数错误来自于模型错误判断情感状态为无，占到错误总数的70%。我们随机采样了5条样本并展示在了table3中。可以看到这类样本本身就落在Anger标签定义的boardline上。将其同其他样本进行比对会非常容易导致标签预测反转，进而加大预测的不准确性。这暗示了该数据集先天与sample based comparison 不适配。
 
 For the CRC model, we analyze Track A anger's misclassifications. We find that most misclassifications—accounting for 70\% of the errors—are due to the model incorrectly predicting a neutral emotional state. Table~\ref{tab:CRC_badcases} presents 4 randomly sampled bad cases, illustrating that these instances are on the borderline of the anger definition. Comparing them with other samples can easily influence their predictions, causing uncertainty and error. This suggests that the dataset may not be well-suited for sample-based comparison approach.
 
 % 在DPO模型上，我们着重分析了track B Sadness标签的bad case。 我们发现所有错误同ground truth仅有程度为1的差异。这意味着模型对于标签intensity的感知的敏感性依然存在提升的空间。
-For the DPO model, we analyze sadness's wrong cases in Track B. We observed that over 90\% of the errors differed from the ground truth by only one intensity level. This indicates that the model still has room for improvement in its recognition of label intensity.
+For the DPO model, we analyze sadness's wrong cases in Track B. We observe that over 90\% of the errors differs from the ground truth by only one intensity level. This indicates that the model still has room for improvement in its recognition of label intensity.
 
 % 针对SimPO模型，我们发现其效果差的核心原因在于丢失了输出格式，从而导致大量的内容解析错误。该现象揭示了reference 模型对于TBED任务的重要性。尽管其拉大了正确输出与错误输出的概率margin，但其也会导致原先的正确输出不再是概率第一的输出。
 Regarding the SimPO model, we figure out that its poor performance primarily stemmed from the loss of output formatting, leading to frequent content parsing errors. This highlights the critical role of the reference model in preference tuning. While SimPO effectively increases the probability margin between correct and incorrect outputs, it may also make correct outputs no longer rank as the top generation.
@@ -413,11 +413,11 @@ Regarding the SimPO model, we figure out that its poor performance primarily ste
 
 % 本次SemEVAL-2025，主办方提出了一份非常具有挑战性的TBED数据集。其包含多标签分类与程度预测，并且包含了超过28个语种。其样本充分展示了情感表达的复杂性，以及不同语言及文化背景所带来的多样性。
 
-The SemEVAL-2025 organizers introduced a highly challenging text-based emotion detection dataset, covering multi-label classification and intensity prediction across 28 languages. The dataset reflects the complexity of emotional expression and the diversity introduced by different linguistic and cultural backgrounds.
+The SemEVAL-2025 organizers introduce a highly challenging text-based emotion detection dataset, covering multi-label classification and intensity prediction across 28 languages. The dataset reflects the complexity of emotional expression and the diversity introduced by different linguistic and cultural backgrounds.
 
 % 我们在本次比赛尝试了三类方案。其中baseline方案为标准预测任务。两项改进方案分别为sample based contrastive learning与generation-based contrastive learning。其思想都是通过对比训练的方式强化模型的预测能力，一个对比样本，另一个对比正确与错误的生成。
 
-We explored three types of approaches in this competition. The baseline approach is the standard prediction task. The two enhanced types of approaches were sample-based contrastive learning and generation-based contrastive learning. For the sample-based approach, we try CRC. For the generation-based approach, we explore both DPO and SimPO. They all aim to improve model prediction through contrastive training—one by comparing samples and the other by discriminating between correct and incorrect generations.
+We explore three types of approaches in this competition. The baseline approach is the standard prediction task. The two enhanced types of approaches were sample-based contrastive learning and generation-based contrastive learning. For the sample-based approach, we try CRC. For the generation-based approach, we explore both DPO and SimPO. They all aim to improve model prediction through contrastive training—one by comparing samples and the other by discriminating between correct and incorrect generations.
 
 % 我们的试验发现，不同语言代表了不同的文化背景，因此multilingual训练并不能为英语emotion detection提供增益。同时由于表达的敏感性，样本对比反而会引入额外的不确定性，从而降低预测的准确性。基于生成的对比学习方案能为程度预测提供稳定的增益，但具体到不同技术上也存在极大的差异。参考模型的约束对于基于生成的对比学习方案极为重要。它能为模型提供稳定的优化基准，防止优化过程过度偏离原始模型分布，从而丧失关键能力（如模版化输出的能力）。
 
