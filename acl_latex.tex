@@ -161,7 +161,7 @@ However, due to the nuanced and complex nature of emotional expression, TBED fac
 
 % 本次SemEVAL 2025，主办方在TASK11 上提出了 “[**Bridging the Gap in Text-Based Emotion Detection**](https://github.com/emotion-analysis-project/SemEval2025-task11)” 挑战比赛。其比赛数据集包含多达33个不同的语言，且放出了类别标签和强度标签作为赛题A和赛题B。其需识别的情感为“给定一句话读者认为说话者可能感受到什么样的情绪”，而非读者的情感或语句中提到的其他人的情感。其情感类别定义采用了 Ekman’s的框架(Ekman and Friesen, 1981)，包含六个基础情感分类: anger,fear, sadness, joy, disgust and surprise。同时其在赛题B的强度预测上，为每个情感设立了4个强度level。其赛题设计既覆盖了现有两大TBED做法，也包含了多语言与细微差异识别的挑战。
 
-SemEval-2025, Task 11, titled "Bridging the Gap in Text-Based Emotion Detection", introduces a multilingual benchmark covering 28 languages\cite{muhammad2025brighterbridginggaphumanannotated,belay-etal-2025-evaluating}. The competition consists of Track A (multi-label classification) and Track B (intensity prediction). The goal is to identify the speaker's perceived emotion in a given sentence. Emotion categories follow Ekman's framework\cite{ekman1969repertoire}, encompassing six basic emotions: anger, fear, sadness, joy, disgust, and surprise. Task B further introduces four intensity levels for each emotion. This competition setup encapsulates both primary TBED methodologies while incorporating challenges in multilingual and fine-grained emotion recognition. 
+SemEval-2025, Task 11, titled "Bridging the Gap in Text-Based Emotion Detection", introduces a multilingual benchmark covering 28 languages\cite{muhammad-etal-2025-semeval,muhammad2025brighterbridginggaphumanannotated,belay-etal-2025-evaluating}. The competition consists of Track A (multi-label classification) and Track B (intensity prediction). The goal is to identify the speaker's perceived emotion in a given sentence. Emotion categories follow Ekman's framework\cite{ekman1969repertoire}, encompassing six basic emotions: anger, fear, sadness, joy, disgust, and surprise. Task B further introduces four intensity levels for each emotion. This competition setup encapsulates both primary TBED methodologies while incorporating challenges in multilingual and fine-grained emotion recognition. 
 
 % 为了兼顾赛题A与赛题B两个任务，同时支持对多达33种语言的情感预测，我们放弃了传统的Encoder分类框架，转而使用了生成式大语言模型。通过监督学习，可以让模型直接生成预测标签，并且不同track 可以使用不同的prompt 模版统一到一个模型中。同时，得益于其预训练预料的规模与语种覆盖率，使用大语言模型也能为多语种情感识别提供良好的支持。
 
@@ -305,10 +305,10 @@ CRC   & English      & 0.819          & 0.802          & \textbf{0.752} & 0.865 
 DPO   & English      & 0.827          & 0.806          & 0.736          & 0.875          & 0.816          & 0.821          & \textbf{0.785} \\
 SimPO & English      & 0.748          & 0.741          & 0.700          & 0.737          & \textbf{0.827} & \textbf{0.832} & 0.607          \\ \hline
 \end{tabular}
-\vskip -5pt
+\vskip -8pt
 \caption{English test results of all models in Track A}
 \label{tab:tracka_result}
-\vskip -5pt
+\vskip -8pt
 \end{table*}
 
 % Please add the following required packages to your document preamble:
@@ -335,10 +335,10 @@ CRC   & English      & 0.828          & 0.805          & 0.796          & 0.807 
 DPO   & English      & \textbf{0.846} & \textbf{0.824} & 0.810          & \textbf{0.844} & 0.846          & \textbf{0.849} & \textbf{0.773} \\
 SimPO & English      & 0.770          & 0.741          & 0.700          & 0.737          & 0.827          & 0.832          & 0.607          \\ \hline
 \end{tabular}
-\vskip -5pt
+\vskip -8pt
 \caption{English test set results of all models in Track B}
 \label{tab:trackb_result}
-% \vskip -10pt
+\vskip -18pt
 \end{table*}
 
 % 本次比赛包含赛题A与赛题B。其中赛题A包含28个语种，赛题B包含11个语种。每个语种包含千计的样本，且部分语种的样本在不同赛题上并不一致。两个赛题的标签为Anger, Fear, Joy, Sadness, Surprise, 和disgust。部分语种存在标签缺失的情况(如英语不包含disgust标签)。待预测内容为不包含前序对话的单句对话文本。赛题A的评估指标为F1 score。赛题B的评估指标为Pearson Correlation。每个赛题包含训练集，开发集与测试集。但是，由于开发集太小，评估指标非常不稳定，因此我们的所有结果均均跑在测试集上。
@@ -355,7 +355,9 @@ We first evaluate the impact of multilingual data on English-only performance in
 
 % 我们的所有训练均采用LoRA的方式以节省训练成本。LoRA rank为8，loRA alpha为16，LoRA dropout 为0. 每个任务训练的Epoch 数为3，batch size为128. ST与CRC任务的学习率为4e-4. DPO训练的学习率5e-6，SimPO训练的学习率为1e-6。LR scheduler采用cosine策略，warmup ratio为0.1，batch size为128. 在CRC推理时，Track A的N为3，Track B的N为7。
 
-To reduce training costs, we use LoRA for all fine-tuning tasks, with its rank and alpha set as 8 and 16. Each training lasts for 3 epochs with a batch size of 128. Regarding the learning rate (LR), SP and CRC employ 4e-4, DPO adopts 5e-6, and SimPO uses 1e-6. All models are trained using the AdamW optimizer, with $\beta_1=0.8, \beta_2=0.99$. All LR scheduler employs cosine decay with a warmup ratio of 0.1. For CRC inference, we set $N=3$ for Track A and $N=7$ for Track B.
+To reduce training costs, we use LoRA \cite{hu2022lora} for all fine-tuning tasks, with its rank and alpha set as 8 and 16. Each training lasts for 3 epochs with a batch size of 128. Regarding the learning rate (LR), SP and CRC employ 4e-4, DPO adopts 5e-6, and SimPO uses 1e-6. All models are trained using the AdamW optimizer, with $\beta_1=0.8, \beta_2=0.99$. All LR scheduler employs cosine decay with a warmup ratio of 0.1. For CRC inference, we set $N=3$ for Track A and $N=7$ for Track B.
+
+All experiments were conducted using 8-GPU distributed training. Due to limited computational resources, different GPUs were used across various training runs. However, all GPUs were based on the Ada Lovelace or Hopper architecture, allowing us to leverage a wide range of existing acceleration techniques to enhance training efficiency.
 
 \begin{table*}[]
 \centering
@@ -373,8 +375,10 @@ eng\_test\_track\_a\_00071 &
   0 &
   1 \\ \hline
 \end{tabular}
+\vskip -5pt
 \caption{Bad cases of the CRC model on the Anger label of Track A}
 \label{tab:CRC_badcases}
+\vskip -18pt
 \end{table*}
 
 \section{Results}
